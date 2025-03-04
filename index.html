@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor HLS Simple</title>
+    <title>LeALtadGrone TV</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,65 +11,153 @@
             margin: 0 auto;
             padding: 20px;
             text-align: center;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        #video-container {
+            margin: 20px 0;
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         #video-player {
             width: 100%;
-            background-color: #000;
+            display: block;
+        }
+        .controls {
+            margin: 15px 0;
         }
         button {
             padding: 10px 20px;
-            margin: 10px;
+            margin: 0 5px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
         }
         button:hover {
             background-color: #45a049;
         }
+        #status {
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
-    <h1>Reproductor de Stream HLS</h1>
-    <video id="video-player" controls></video>
-    <div>
+    <h1>LeALtadGrone TV</h1>
+    
+    <div id="video-container">
+        <video id="video-player" controls autoplay></video>
+    </div>
+    
+    <div class="controls">
+        <button id="play-btn">Reproducir</button>
         <button id="reload-btn">Recargar</button>
     </div>
+    
+    <div id="status">Cargando stream...</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.10/hls.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const video = document.getElementById('video-player');
+            const playBtn = document.getElementById('play-btn');
             const reloadBtn = document.getElementById('reload-btn');
-            const streamUrl = 'https://6a2c-45-189-116-231.ngrok-free.app/hls/test.m3u8';
-
+            const status = document.getElementById('status');
+            
+            // URL del stream HLS - Actualiza esta URL si tu dirección de ngrok cambia
+            const streamUrl = 'https://4d7d-45-189-116-231.ngrok-free.app/hls/test.m3u8';
+            
+            function updateStatus(message) {
+                status.textContent = message;
+            }
+            
             function loadPlayer() {
+                updateStatus('Iniciando reproductor...');
+                
                 if (Hls.isSupported()) {
                     const hls = new Hls();
+                    
+                    hls.on(Hls.Events.MEDIA_ATTACHED, function() {
+                        updateStatus('Cargando stream...');
+                    });
+                    
+                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                        updateStatus('Stream cargado correctamente');
+                        playBtn.textContent = 'Pausar';
+                        video.play().catch(e => {
+                            updateStatus('Listo para reproducir (haz clic en Play)');
+                        });
+                    });
+                    
+                    hls.on(Hls.Events.ERROR, function(event, data) {
+                        console.error('Error HLS:', data);
+                        if (data.fatal) {
+                            updateStatus('Error: ' + data.details);
+                        }
+                    });
+                    
                     hls.loadSource(streamUrl);
                     hls.attachMedia(video);
                     
-                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                        video.play().catch(e => console.log('Error al reproducir automáticamente'));
-                    });
                 } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    // Safari
+                    // Para Safari
                     video.src = streamUrl;
                     video.addEventListener('loadedmetadata', function() {
-                        video.play().catch(e => console.log('Error al reproducir automáticamente'));
+                        updateStatus('Stream cargado correctamente');
+                        playBtn.textContent = 'Pausar';
+                        video.play().catch(e => {
+                            updateStatus('Listo para reproducir (haz clic en Play)');
+                        });
                     });
+                    
+                    video.addEventListener('error', function() {
+                        updateStatus('Error al cargar el stream');
+                    });
+                } else {
+                    updateStatus('Tu navegador no soporta HLS');
                 }
             }
-
-            // Iniciar reproductor
+            
+            // Iniciar el reproductor
             loadPlayer();
-
+            
+            // Botón de reproducir/pausar
+            playBtn.addEventListener('click', function() {
+                if (video.paused) {
+                    video.play();
+                    playBtn.textContent = 'Pausar';
+                } else {
+                    video.pause();
+                    playBtn.textContent = 'Reproducir';
+                }
+            });
+            
             // Botón de recargar
             reloadBtn.addEventListener('click', function() {
+                updateStatus('Recargando stream...');
                 video.pause();
                 video.src = '';
-                loadPlayer();
+                setTimeout(loadPlayer, 1000);
+            });
+            
+            // Actualizar botón cuando el video se pausa o reproduce
+            video.addEventListener('play', function() {
+                playBtn.textContent = 'Pausar';
+            });
+            
+            video.addEventListener('pause', function() {
+                playBtn.textContent = 'Reproducir';
             });
         });
     </script>
