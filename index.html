@@ -1,42 +1,77 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Access-Control-Allow-Origin" content="*">
-    <meta http-equiv="Access-Control-Allow-Methods" content="GET, POST, OPTIONS">
-    <meta http-equiv="Access-Control-Allow-Headers" content="Origin, X-Requested-With, Content-Type, Accept">
-    <title>Reproductor de Streaming HLS</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Reproductor HLS Simple</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        #video-player {
+            width: 100%;
+            background-color: #000;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
-
 <body>
-    <div class="container">
-        <header>
-            <h1>Reproductor de Streaming en Vivo</h1>
-        </header>
-
-        <div class="player-container">
-            <video id="video-player" controls></video>
-
-            <div class="controls">
-                <button id="play-btn">Reproducir</button>
-                <button id="reload-btn">Recargar</button>
-            </div>
-
-            <div class="status">
-                <p id="status-message" class="loading">Esperando cargar el stream...</p>
-            </div>
-        </div>
-
-        <footer>
-            <p>Reproductor de streaming HLS a través de ngrok</p>
-        </footer>
+    <h1>Reproductor de Stream HLS</h1>
+    <video id="video-player" controls></video>
+    <div>
+        <button id="reload-btn">Recargar</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.10/hls.min.js"></script>
-    <script src="script.js"></script>
-</body>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('video-player');
+            const reloadBtn = document.getElementById('reload-btn');
+            const streamUrl = 'https://4d7d-45-189-116-231.ngrok-free.app/hls/test.m3u8';
 
+            function loadPlayer() {
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(streamUrl);
+                    hls.attachMedia(video);
+                    
+                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                        video.play().catch(e => console.log('Error al reproducir automáticamente'));
+                    });
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Safari
+                    video.src = streamUrl;
+                    video.addEventListener('loadedmetadata', function() {
+                        video.play().catch(e => console.log('Error al reproducir automáticamente'));
+                    });
+                }
+            }
+
+            // Iniciar reproductor
+            loadPlayer();
+
+            // Botón de recargar
+            reloadBtn.addEventListener('click', function() {
+                video.pause();
+                video.src = '';
+                loadPlayer();
+            });
+        });
+    </script>
+</body>
 </html>
