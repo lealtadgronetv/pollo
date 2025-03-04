@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de Streaming HLS</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Reproductor de Streaming en Vivo</h1>
+        </header>
+
+        <div class="player-container">
+            <video id="video-player" controls></video>
+
+            <div class="controls">
+                <button id="play-btn">Reproducir</button>
+                <button id="reload-btn">Recargar</button>
+            </div>
+
+            <div class="status">
+                <p id="status-message" class="loading">Esperando cargar el stream...</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Reproductor de streaming HLS a través de ngrok</p>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.10/hls.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
