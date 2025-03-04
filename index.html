@@ -1,50 +1,35 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HLS Stream Player</title>
+    <title>Streaming en Vivo</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-        }
-        video {
-            max-width: 100%;
-            width: 100%;
-            background: black;
-        }
-    </style>
 </head>
 <body>
-    <h1>Live Stream</h1>
-    <video id="videoPlayer" controls autoplay></video>
+    <h1>Transmisión en Vivo</h1>
+    <video id="video" controls autoplay style="width: 100%; max-width: 800px;"></video>
 
     <script>
-        const videoElement = document.getElementById('videoPlayer');
-        const streamUrl = 'https://abdc-45-189-116-231.ngrok-free.app/hls/stream.m3u8';
+        var video = document.getElementById('video');
+        var videoSrc = "https://abdc-45-189-116-231.ngrok-free.app/hls/stream.m3u8";
 
         if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(streamUrl);
-            hls.attachMedia(videoElement);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                videoElement.play();
+            var hls = new Hls();
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                video.play();
             });
-        } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
-            videoElement.src = streamUrl;
-            videoElement.addEventListener('loadedmetadata', () => {
-                videoElement.play();
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSrc;
+            video.addEventListener('loadedmetadata', function() {
+                video.play();
             });
         } else {
-            console.error('HLS is not supported in this browser.');
-            alert('Su navegador no soporta transmisiones HLS.');
+            alert("Tu navegador no soporta la reproducción de video en vivo.");
         }
     </script>
 </body>
 </html>
+
