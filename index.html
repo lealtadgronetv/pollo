@@ -52,24 +52,9 @@
             background: #000; 
         }
         
-        /* Campo URL visible para pruebas */
-        .url-input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            box-sizing: border-box;
-        }
-        
-        .load-button {
-            padding: 10px 15px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            margin-bottom: 15px;
+        /* Campo de URL oculto pero mantenido para funcionalidad */
+        #streamUrl {
+            display: none;
         }
         
         #error { 
@@ -86,7 +71,7 @@
             display: block;
         }
         
-        /* Estilos para publicidad */
+        /* BLOQUE DE PUBLICIDAD */
         .ad-container {
             margin: 20px 0;
         }
@@ -99,6 +84,7 @@
             text-transform: uppercase;
         }
         
+        /* Bloque de publicidad superior */
         .ad-top {
             text-align: center;
             margin-bottom: 20px;
@@ -111,22 +97,67 @@
             font-size: 14px;
         }
     </style>
+    <!-- Publicidad adicional 1 -->
+    <script type='text/javascript' src='//pl26053452.effectiveratecpm.com/4a/98/50/4a9850fd4fffa988a63d67a73cba7f74.js'></script>
+    <!-- Publicidad adicional 2 -->
+    <script type='text/javascript' src='//pl26053469.effectiveratecpm.com/07/ea/78/07ea7873843b6301d8dd65dd9190f679.js'></script>
 </head>
 <body>
     <div class="container">
         <h1>Reproductor de Video HLS</h1>
         
+        <!-- BLOQUE DE PUBLICIDAD ADTERRA -->
+        <div class="ad-container">
+            <div class="ad-label">Publicidad</div>
+            <div class="ad-top">
+                <script type="text/javascript">
+                    atOptions = {
+                        'key' : '09d25cb4a0f0d326ab324f93517d54aa',
+                        'format' : 'iframe',
+                        'height' : 300,
+                        'width' : 160,
+                        'params' : {}
+                    };
+                </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/09d25cb4a0f0d326ab324f93517d54aa/invoke.js"></script>
+            </div>
+        </div>
+        
+        <!-- BLOQUE DE PUBLICIDAD ADICIONAL -->
+        <div class="ad-container">
+            <div class="ad-label">Publicidad</div>
+            <div class="ad-secondary">
+                <script type="text/javascript" src="//websitestatistics.js"></script>
+            </div>
+        </div>
+        
+        <!-- BLOQUE DE PUBLICIDAD ADICIONAL 3 -->
+        <div class="ad-container">
+            <div class="ad-label">Publicidad</div>
+            <div class="ad-secondary">
+                <script async="async" data-cfasync="false" src="//pl26053463.effectiveratecpm.com/3d9ae476db848afa0c64beda8f15e01b/invoke.js"></script>
+                <div id="container-3d9ae476db848afa0c64beda8f15e01b"></div>
+            </div>
+        </div>
+        
         <div class="content-wrapper">
             <div class="main-content">
-                <!-- Campo visible para pruebas -->
-                <input type="text" id="streamUrl" class="url-input" placeholder="URL del stream (ej: https://example.com/stream.m3u8)">
-                <button id="loadButton" class="load-button">Cargar Stream</button>
+                <!-- Campo oculto para mantener funcionalidad -->
+                <input type="text" id="streamUrl" value="https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8">
                 
                 <div id="error"></div>
                 
                 <div class="video-container">
-                    <video id="videoPlayer" controls playsinline muted></video>
+                    <video id="videoPlayer" controls playsinline></video>
                 </div>
+            </div>
+        </div>
+        
+        <!-- BLOQUE DE PUBLICIDAD ADICIONAL 4 (repetición del 2) -->
+        <div class="ad-container">
+            <div class="ad-label">Publicidad</div>
+            <div class="ad-secondary">
+                <script type='text/javascript' src='//pl26053469.effectiveratecpm.com/07/ea/78/07ea7873843b6301d8dd65dd9190f679.js'></script>
             </div>
         </div>
         
@@ -138,7 +169,6 @@
     <script>
         const videoPlayer = document.getElementById('videoPlayer');
         const streamUrl = document.getElementById('streamUrl');
-        const loadButton = document.getElementById('loadButton');
         const errorDisplay = document.getElementById('error');
         let hlsPlayer = null;
         
@@ -175,10 +205,17 @@
                 return;
             }
             
-            // Deshabilitar el atributo muted después de la interacción del usuario
-            videoPlayer.muted = false;
-            
             try {
+                // Detectar si estamos en móvil
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                // Configurar atributos específicos para móviles
+                if (isMobile) {
+                    videoPlayer.setAttribute('playsinline', '');
+                    videoPlayer.setAttribute('muted', '');
+                    videoPlayer.setAttribute('autoplay', '');
+                }
+                
                 // Probar primero con reproducción nativa para Safari y iOS
                 if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
                     console.log("Usando reproducción nativa HLS");
@@ -199,7 +236,6 @@
                         let errorMsg = "Error en reproducción nativa";
                         
                         if (error) {
-                            // Códigos de error según la especificación de HTML5 Media
                             switch (error.code) {
                                 case 1: // MEDIA_ERR_ABORTED
                                     errorMsg += ": La reproducción fue abortada por el usuario";
@@ -318,27 +354,7 @@
             });
         }
         
-        // Detectar si estamos en móvil
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
-        // Establecer una URL de prueba o la URL predeterminada
-        // Cambia esto por la URL real de tu stream
-        streamUrl.value = isMobile ? "https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8" : "https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8";
-        
-        // Evento para cargar el stream
-        loadButton.addEventListener('click', () => {
-            loadStream(streamUrl.value.trim());
-        });
-        
-        // Si se detecta móvil, añadir algunas modificaciones especiales
-        if (isMobile) {
-            // Asegurarse de que el atributo playsinline esté presente
-            videoPlayer.setAttribute('playsinline', '');
-            // Añadir autoplay como último recurso para iOS
-            videoPlayer.setAttribute('autoplay', '');
-        }
-        
-        // Cargar automáticamente al cargar la página
+        // Cargar automáticamente
         window.addEventListener('DOMContentLoaded', () => {
             // Esperar un poco para asegurarse que todo está cargado
             setTimeout(() => {
