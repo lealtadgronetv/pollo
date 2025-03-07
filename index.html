@@ -19,7 +19,17 @@
     <p id="status" style="color: white; text-align: center; margin-top: 10px;"></p>
 
     <script>
-        function loadStream() {
+        async function testUrl(url) {
+            try {
+                let response = await fetch(url, { method: 'HEAD', mode: 'cors' });
+                if (!response.ok) throw new Error("Servidor no accesible");
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function loadStream() {
             var video = document.getElementById('videoPlayer');
             var videoSrc = document.getElementById('videoUrl').value;
             var statusText = document.getElementById('status');
@@ -29,13 +39,15 @@
                 return;
             }
             
+            statusText.innerText = "Verificando acceso al enlace...";
+            let isAccessible = await testUrl(videoSrc);
+            if (!isAccessible) {
+                statusText.innerText = "Error: No se puede acceder al enlace. Verifica CORS o el estado del servidor.";
+                return;
+            }
+            
             if (Hls.isSupported()) {
-                var hls = new Hls({
-                    xhrSetup: function (xhr) {
-                        xhr.withCredentials = false; // Deshabilitar credenciales para evitar problemas de CORS
-                        xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
-                    }
-                });
+                var hls = new Hls();
                 hls.loadSource(videoSrc);
                 hls.attachMedia(video);
                 hls.on(Hls.Events.MANIFEST_PARSED, function() {
