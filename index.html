@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stream HLS</title>
-    <!-- Versión alternativa de HLS.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.3.5/hls.min.js"></script>
     <style>
         :root {
@@ -53,9 +52,24 @@
             background: #000; 
         }
         
-        /* Campo de URL oculto pero mantenido para funcionalidad */
-        #streamUrl {
-            display: none;
+        /* Campo URL visible para pruebas */
+        .url-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+        }
+        
+        .load-button {
+            padding: 10px 15px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin-bottom: 15px;
         }
         
         #error { 
@@ -72,7 +86,7 @@
             display: block;
         }
         
-        /* BLOQUE DE PUBLICIDAD */
+        /* Estilos para publicidad */
         .ad-container {
             margin: 20px 0;
         }
@@ -85,7 +99,6 @@
             text-transform: uppercase;
         }
         
-        /* Bloque de publicidad superior */
         .ad-top {
             text-align: center;
             margin-bottom: 20px;
@@ -98,67 +111,22 @@
             font-size: 14px;
         }
     </style>
-    <!-- Publicidad adicional 1 -->
-    <script type='text/javascript' src='//pl26053452.effectiveratecpm.com/4a/98/50/4a9850fd4fffa988a63d67a73cba7f74.js'></script>
-    <!-- Publicidad adicional 2 -->
-    <script type='text/javascript' src='//pl26053469.effectiveratecpm.com/07/ea/78/07ea7873843b6301d8dd65dd9190f679.js'></script>
 </head>
 <body>
     <div class="container">
         <h1>Reproductor de Video HLS</h1>
         
-        <!-- BLOQUE DE PUBLICIDAD ADTERRA -->
-        <div class="ad-container">
-            <div class="ad-label">Publicidad</div>
-            <div class="ad-top">
-                <script type="text/javascript">
-                    atOptions = {
-                        'key' : '09d25cb4a0f0d326ab324f93517d54aa',
-                        'format' : 'iframe',
-                        'height' : 300,
-                        'width' : 160,
-                        'params' : {}
-                    };
-                </script>
-                <script type="text/javascript" src="//www.highperformanceformat.com/09d25cb4a0f0d326ab324f93517d54aa/invoke.js"></script>
-            </div>
-        </div>
-        
-        <!-- BLOQUE DE PUBLICIDAD ADICIONAL -->
-        <div class="ad-container">
-            <div class="ad-label">Publicidad</div>
-            <div class="ad-secondary">
-                <script type="text/javascript" src="//websitestatistics.js"></script>
-            </div>
-        </div>
-        
-        <!-- BLOQUE DE PUBLICIDAD ADICIONAL 3 -->
-        <div class="ad-container">
-            <div class="ad-label">Publicidad</div>
-            <div class="ad-secondary">
-                <script async="async" data-cfasync="false" src="//pl26053463.effectiveratecpm.com/3d9ae476db848afa0c64beda8f15e01b/invoke.js"></script>
-                <div id="container-3d9ae476db848afa0c64beda8f15e01b"></div>
-            </div>
-        </div>
-        
         <div class="content-wrapper">
             <div class="main-content">
-                <!-- Campo oculto para mantener funcionalidad -->
-                <input type="text" id="streamUrl" value="http://localhost:8080/hls/test.m3u8">
+                <!-- Campo visible para pruebas -->
+                <input type="text" id="streamUrl" class="url-input" placeholder="URL del stream (ej: https://example.com/stream.m3u8)">
+                <button id="loadButton" class="load-button">Cargar Stream</button>
                 
                 <div id="error"></div>
                 
                 <div class="video-container">
-                    <video id="videoPlayer" controls></video>
+                    <video id="videoPlayer" controls playsinline muted></video>
                 </div>
-            </div>
-        </div>
-        
-        <!-- BLOQUE DE PUBLICIDAD ADICIONAL 4 (repetición del 2) -->
-        <div class="ad-container">
-            <div class="ad-label">Publicidad</div>
-            <div class="ad-secondary">
-                <script type='text/javascript' src='//pl26053469.effectiveratecpm.com/07/ea/78/07ea7873843b6301d8dd65dd9190f679.js'></script>
             </div>
         </div>
         
@@ -170,6 +138,7 @@
     <script>
         const videoPlayer = document.getElementById('videoPlayer');
         const streamUrl = document.getElementById('streamUrl');
+        const loadButton = document.getElementById('loadButton');
         const errorDisplay = document.getElementById('error');
         let hlsPlayer = null;
         
@@ -206,82 +175,64 @@
                 return;
             }
             
+            // Deshabilitar el atributo muted después de la interacción del usuario
+            videoPlayer.muted = false;
+            
             try {
                 // Probar primero con reproducción nativa para Safari y iOS
                 if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    console.log("Usando reproducción nativa HLS");
                     videoPlayer.src = url;
+                    
+                    // Mejorar la gestión de errores para reproducción nativa
                     videoPlayer.addEventListener('loadedmetadata', () => {
-                        videoPlayer.play();
+                        videoPlayer.play().catch(e => {
+                            console.error("Error al reproducir:", e);
+                            // Intentar con reproducción silenciosa si falla la reproducción automática
+                            videoPlayer.muted = true;
+                            videoPlayer.play();
+                        });
                     });
+                    
                     videoPlayer.addEventListener('error', (e) => {
-                        showError(`Error en reproducción nativa: ${videoPlayer.error?.message || 'Desconocido'}`);
-                    });
-                    return;
-                }
-                
-                // Para otros navegadores, usar HLS.js
-                if (Hls.isSupported()) {                    
-                    hlsPlayer = new Hls({
-                        enableWorker: true,
-                        lowLatencyMode: true,
-                        backBufferLength: 90,
-                        // Configuraciones para manifestLoadError
-                        manifestLoadingMaxRetry: 8,
-                        manifestLoadingRetryDelay: 500,
-                        manifestLoadingTimeOut: 20000,
-                        // Desactivar CORS para pruebas locales
-                        xhrSetup: function(xhr) {
-                            xhr.withCredentials = false;
-                        }
-                    });
-                    
-                    hlsPlayer.loadSource(url);
-                    hlsPlayer.attachMedia(videoPlayer);
-                    
-                    hlsPlayer.on(Hls.Events.MEDIA_ATTACHED, () => {
-                        videoPlayer.play();
-                    });
-                    
-                    hlsPlayer.on(Hls.Events.ERROR, (event, data) => {
-                        console.log("Error HLS:", data);
+                        const error = videoPlayer.error;
+                        let errorMsg = "Error en reproducción nativa";
                         
-                        if (data.type === Hls.ErrorTypes.NETWORK_ERROR && 
-                            data.details === 'manifestLoadError') {
-                            
-                            // Información de depuración detallada
-                            let errorMsg = `Error cargando manifest. `;
-                            if (data.response) {
-                                errorMsg += `Código: ${data.response.code}, `;
-                                errorMsg += `Texto: ${data.response.text || 'N/A'}`;
-                            }
-                            
-                            showError(errorMsg);
-                            
-                            // Sugerencias según el error
-                            if (!data.response || data.response.code === 0) {
-                                showError(errorMsg + "\n\nPosibles soluciones: 1) Verifica que el servidor esté ejecutándose. 2) La URL puede estar mal formada. 3) Problema de CORS - el servidor debe permitir acceso desde este origen.");
-                            }
-                        }
-                        
-                        // Intentar recuperarse de errores fatales
-                        if (data.fatal) {
-                            switch (data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    showError("Error de red. Reintentando...");
-                                    setTimeout(() => hlsPlayer.startLoad(), 2000);
+                        if (error) {
+                            // Códigos de error según la especificación de HTML5 Media
+                            switch (error.code) {
+                                case 1: // MEDIA_ERR_ABORTED
+                                    errorMsg += ": La reproducción fue abortada por el usuario";
                                     break;
-                                    
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    showError("Error de reproducción. Intentando recuperar...");
-                                    hlsPlayer.recoverMediaError();
+                                case 2: // MEDIA_ERR_NETWORK
+                                    errorMsg += ": Error de red al cargar el medio";
                                     break;
-                                    
+                                case 3: // MEDIA_ERR_DECODE
+                                    errorMsg += ": Error de decodificación del formato";
+                                    break;
+                                case 4: // MEDIA_ERR_SRC_NOT_SUPPORTED
+                                    errorMsg += ": El formato o tipo de medio no es soportado";
+                                    break;
                                 default:
-                                    showError("Error fatal en HLS.js. Recarga la página.");
-                                    break;
+                                    errorMsg += `: Código de error ${error.code}`;
+                            }
+                            
+                            if (error.message) {
+                                errorMsg += ` - ${error.message}`;
                             }
                         }
+                        
+                        showError(errorMsg);
+                        
+                        // Fallback a HLS.js si la reproducción nativa falla y HLS.js está disponible
+                        if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                            console.log("Fallback a HLS.js después de error nativo");
+                            initHlsPlayer(url);
+                        }
                     });
+                } else if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                    // Para otros navegadores, usar HLS.js
+                    initHlsPlayer(url);
                 } else {
                     showError('Tu navegador no soporta HLS');
                 }
@@ -290,7 +241,104 @@
             }
         }
         
-        // Cargar automáticamente
+        // Función para inicializar HLS.js
+        function initHlsPlayer(url) {
+            console.log("Inicializando HLS.js");
+            
+            hlsPlayer = new Hls({
+                enableWorker: true,
+                lowLatencyMode: true,
+                backBufferLength: 90,
+                manifestLoadingMaxRetry: 8,
+                manifestLoadingRetryDelay: 500,
+                manifestLoadingTimeOut: 20000,
+                fragLoadingMaxRetry: 8,
+                fragLoadingRetryDelay: 500,
+                fragLoadingTimeOut: 20000,
+                // Desactivar CORS para pruebas
+                xhrSetup: function(xhr) {
+                    xhr.withCredentials = false;
+                }
+            });
+            
+            hlsPlayer.loadSource(url);
+            hlsPlayer.attachMedia(videoPlayer);
+            
+            hlsPlayer.on(Hls.Events.MEDIA_ATTACHED, () => {
+                videoPlayer.play().catch(e => {
+                    console.error("Error al reproducir con HLS.js:", e);
+                    // Intentar con reproducción silenciosa si falla la reproducción automática
+                    videoPlayer.muted = true;
+                    videoPlayer.play();
+                });
+            });
+            
+            hlsPlayer.on(Hls.Events.ERROR, (event, data) => {
+                console.log("Error HLS:", data);
+                
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                    let errorMsg = `Error de red: `;
+                    
+                    if (data.details === 'manifestLoadError') {
+                        errorMsg += `Error cargando manifest. `;
+                        if (data.response) {
+                            errorMsg += `Código: ${data.response.code}, `;
+                            errorMsg += `Texto: ${data.response.text || 'N/A'}`;
+                        }
+                        
+                        // Sugerencias según el error
+                        if (!data.response || data.response.code === 0) {
+                            errorMsg += "\n\nPosibles soluciones: 1) Verifica que el servidor esté accesible. 2) La URL puede estar mal formada. 3) Problema de CORS - el servidor debe permitir acceso desde este origen.";
+                        }
+                    } else if (data.details === 'fragLoadError') {
+                        errorMsg += `Error cargando fragmento. `;
+                    }
+                    
+                    showError(errorMsg);
+                }
+                
+                // Intentar recuperarse de errores fatales
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            showError("Error de red. Reintentando...");
+                            setTimeout(() => hlsPlayer.startLoad(), 2000);
+                            break;
+                            
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            showError("Error de reproducción. Intentando recuperar...");
+                            hlsPlayer.recoverMediaError();
+                            break;
+                            
+                        default:
+                            showError("Error fatal en HLS.js. Recarga la página.");
+                            break;
+                    }
+                }
+            });
+        }
+        
+        // Detectar si estamos en móvil
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Establecer una URL de prueba o la URL predeterminada
+        // Cambia esto por la URL real de tu stream
+        streamUrl.value = isMobile ? "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" : "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+        
+        // Evento para cargar el stream
+        loadButton.addEventListener('click', () => {
+            loadStream(streamUrl.value.trim());
+        });
+        
+        // Si se detecta móvil, añadir algunas modificaciones especiales
+        if (isMobile) {
+            // Asegurarse de que el atributo playsinline esté presente
+            videoPlayer.setAttribute('playsinline', '');
+            // Añadir autoplay como último recurso para iOS
+            videoPlayer.setAttribute('autoplay', '');
+        }
+        
+        // Cargar automáticamente al cargar la página
         window.addEventListener('DOMContentLoaded', () => {
             // Esperar un poco para asegurarse que todo está cargado
             setTimeout(() => {
