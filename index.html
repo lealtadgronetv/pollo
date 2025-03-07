@@ -4,8 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Play</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
-    <iframe id="videoFrame" src="https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8" style="width: 100vw; height: 100vh; border: none;"></iframe>
+    <video id="video" controls autoplay style="width: 100vw; height: 100vh; background: black;" crossorigin="anonymous"></video>
+    <p id="error-message" style="color: red; text-align: center; display: none;">Error al cargar el video. Intenta recargar la página.</p>
+    <script>
+        var video = document.getElementById('video');
+        var errorMessage = document.getElementById('error-message');
+        var videoSrc = 'http://localhost:8080/hls/test.m3u8';
+
+        function showError(message) {
+            console.error(message);
+            errorMessage.style.display = 'block';
+        }
+
+        if (Hls.isSupported()) {
+            var hls = new Hls({ debug: true }); // Activa logs
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+
+            hls.on(Hls.Events.ERROR, function(event, data) {
+                console.error('Error HLS:', data);
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            showError('Error de red. Verifica la conexión o la URL del stream.');
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            showError('Error en el formato del video.');
+                            hls.recoverMediaError();
+                            break;
+                        default:
+                            showError('Error fatal. Recarga la página.');
+                            break;
+                    }
+                }
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSrc;
+            video.addEventListener('error', function() {
+                showError('Error al cargar el video en este navegador.');
+            });
+        } else {
+            showError('HLS no es compatible con este navegador.');
+        }
+    </script>
 </body>
 </html>
