@@ -1,17 +1,12 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Play</title>
-    <script>
-        function openLink() {
-            let newWindow = window.open('https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8', '', 'width=800,height=600,top=' + (window.innerHeight/2 - 300) + ',left=' + (window.innerWidth/2 - 400));
-        }
-    </script>
 </head>
-<body onload="openLink()">
-    <button onclick="openLink()">Play</button>
+<body>
+    <iframe id="videoFrame" src="https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8" style="width: 100vw; height: 100vh; border: none;"></iframe>
 </body>
 </html>
-
