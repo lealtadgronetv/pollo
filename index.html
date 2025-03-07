@@ -1,90 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HLS Player</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.10/dist/hls.min.js"></script>
+    <title>Reproductor HLS</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { margin: 0; padding: 0; background-color: #000; }
-        .video-container { width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        video { width: 100%; height: 100%; max-height: 100vh; }
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #000; margin: 0; }
+        video { width: 100%; max-width: 800px; height: auto; }
     </style>
 </head>
 <body>
-    <div class="video-container">
-        <video id="video" controls playsinline autoplay muted></video>
-    </div>
-    
+    <video id="videoPlayer" controls autoplay muted></video>
+    <p id="status" style="color: white; text-align: center; margin-top: 10px;"></p>
+
     <script>
-        // URL del stream
-        var videoSrc = "https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8";
-        var video = document.getElementById('video');
-        
-        // Función para cargar el video dependiendo del soporte del navegador
-        function loadVideo() {
-            // Opción 1: Usar HLS.js si está soportado por el navegador
-            if (window.Hls && Hls.isSupported()) {
-                var hls = new Hls({
-                    maxBufferLength: 30,
-                    maxMaxBufferLength: 60,
-                    manifestLoadingTimeOut: 10000, // Tiempo de espera mayor para cargar el manifest
-                    manifestLoadingMaxRetry: 5,    // Más reintentos para cargar el manifest
-                    xhrSetup: function(xhr) {      // Sin credenciales para evitar problemas CORS
-                        xhr.withCredentials = false;
-                    }
-                });
-                
-                hls.loadSource(videoSrc);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    video.play().catch(function(e) {
-                        console.log("Reproducción automática fallida, normal en móviles");
+        document.addEventListener("DOMContentLoaded", function() {
+            var video = document.getElementById('videoPlayer');
+            var statusText = document.getElementById('status');
+            var videoSrc = "https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8";
+            var hls;
+
+            function startStream() {
+                if (Hls.isSupported()) {
+                    hls = new Hls();
+                    hls.loadSource(videoSrc);
+                    hls.attachMedia(video);
+                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                        video.play();
                     });
-                });
-                
-                // Manejo básico de errores
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                    if (data.fatal) {
-                        switch(data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR:
-                                console.log("Error de red, intentando reconectar...");
-                                hls.startLoad();
-                                break;
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                console.log("Error de medio, intentando recuperar...");
-                                hls.recoverMediaError();
-                                break;
-                            default:
-                                // Error fatal
-                                console.log("Error fatal. Stream no disponible.");
-                                break;
+                    
+                    hls.on(Hls.Events.ERROR, function(event, data) {
+                        if (data.fatal) {
+                            statusText.innerText = "Error de red, intentando reconectar...";
+                            setTimeout(() => {
+                                hls.destroy();
+                                startStream();
+                            }, 3000);
                         }
-                    }
-                });
-            } 
-            // Opción 2: Soporte nativo en Safari e iOS
-            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = videoSrc;
-                video.addEventListener('loadedmetadata', function() {
-                    video.play().catch(function(e) {
-                        console.log("Reproducción automática fallida, normal en móviles");
                     });
-                });
-            } 
-            // Opción 3: Fallback para casos extremos usando un iframe con un reproductor externo
-            else {
-                var iframeHtml = '<div style="width:100%;height:100vh;overflow:hidden;">' +
-                              '<iframe style="width:100%;height:100%;" ' +
-                              'src="https://clappr.io/demo/#source=' + encodeURIComponent(videoSrc) + 
-                              '&poster=&mimeType=application/x-mpegURL&autoPlay=true" ' +
-                              'allowfullscreen allow="autoplay; fullscreen"></iframe></div>';
-                document.body.innerHTML = iframeHtml;
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = videoSrc;
+                    video.addEventListener('loadedmetadata', function() {
+                        video.play();
+                    });
+                } else {
+                    alert("Tu navegador no soporta HLS. Prueba en Safari o usa un navegador con compatibilidad con HLS.js");
+                }
             }
-        }
-        
-        // Cargar cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', loadVideo);
+            
+            startStream();
+        });
     </script>
 </body>
 </html>
