@@ -3,52 +3,410 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de Video</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>Stream HLS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.8/hls.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4a6cf7;
+            --secondary-color: #f5f8ff;
+            --text-color: #333;
+            --error-color: #e53935;
+            --border-radius: 8px;
+        }
+        
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .video-container {
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+            background: #000;
+        }
+        
+        video { 
+            width: 100%; 
+            display: block;
+            background: #000; 
+        }
+        
+        .url-input-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        #streamUrl {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+        }
+        
+        #loadButton {
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        #loadButton:hover {
+            background: #3a5bd7;
+        }
+        
+        #error { 
+            color: var(--error-color); 
+            font-weight: bold;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #ffebee;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+        
+        #error.visible {
+            display: block;
+        }
+        
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e3f2fd;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+        }
+        
+        .unmute-notice {
+            text-align: center;
+            color: #666;
+            padding: 5px;
+            background: #f8f8f8;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            display: none;
+        }
+        
+        .unmute-notice.visible {
+            display: block;
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Transmisión en vivo</h2>
-    <p id="status"></p>
-    <video id="video" controls autoplay style="width: 100%; max-width: 800px;"></video>
-
+    <div class="container">
+        <h1>Reproductor de Video HLS</h1>
+        
+        <div class="content-wrapper">
+            <div class="main-content">
+                <div class="url-input-container">
+                    <input type="text" id="streamUrl" placeholder="Ingrese URL del stream (m3u8)" value="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8">
+                    <button id="loadButton">Cargar</button>
+                </div>
+                
+                <div id="error"></div>
+                <div id="unmuteNotice" class="unmute-notice">
+                    El video está silenciado. Haga clic en el botón de sonido para activar el audio.
+                </div>
+                
+                <div class="video-container">
+                    <video id="videoPlayer" controls playsinline></video>
+                </div>
+                
+                <div id="status" class="status">
+                    Esperando cargar el stream...
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            &copy; 2025 Reproductor HLS - Todos los derechos reservados
+        </footer>
+    </div>
+    
     <script>
-        var video = document.getElementById('video');
-        var videoSrc = "https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8";
-
-        function verificarAcceso() {
-            fetch(videoSrc, { method: 'HEAD' })
-                .then(response => {
-                    if (response.ok) {
-                        document.getElementById('status').innerText = "🔓 Acceso Público: Todos pueden ver este video.";
-                    } else {
-                        document.getElementById('status').innerText = "🔒 Acceso Local: Solo disponible en esta red.";
-                    }
-                })
-                .catch(() => {
-                    document.getElementById('status').innerText = "⚠️ No se pudo verificar el acceso. Puede ser un problema de red.";
-                });
+        const videoPlayer = document.getElementById('videoPlayer');
+        const streamUrl = document.getElementById('streamUrl');
+        const loadButton = document.getElementById('loadButton');
+        const errorDisplay = document.getElementById('error');
+        const statusDisplay = document.getElementById('status');
+        const unmuteNotice = document.getElementById('unmuteNotice');
+        let hlsPlayer = null;
+        
+        // Función para mostrar errores
+        function showError(msg) {
+            errorDisplay.textContent = msg;
+            errorDisplay.classList.add('visible');
+            console.error(msg);
         }
-
-        function iniciarReproducción() {
-            if (Hls.isSupported()) {
-                var hls = new Hls();
-                hls.loadSource(videoSrc);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    video.play();
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = videoSrc;
-                video.addEventListener('loadedmetadata', function() {
-                    video.play();
-                });
-            } else {
-                alert("Tu navegador no soporta la reproducción de videos HLS.");
+        
+        // Función para limpiar errores
+        function clearError() {
+            errorDisplay.textContent = '';
+            errorDisplay.classList.remove('visible');
+        }
+        
+        // Función para actualizar estado
+        function updateStatus(msg) {
+            statusDisplay.textContent = msg;
+        }
+        
+        // Función para cargar el stream
+        function loadStream(url) {
+            clearError();
+            updateStatus('Intentando cargar el stream...');
+            
+            // Limpiar instancia previa
+            if (hlsPlayer) {
+                hlsPlayer.destroy();
+                hlsPlayer = null;
+            }
+            
+            // Restablecer el reproductor
+            videoPlayer.src = '';
+            videoPlayer.load();
+            unmuteNotice.classList.remove('visible');
+            
+            // Verificar si la URL parece válida
+            if (!url.startsWith('http')) {
+                showError('La URL debe comenzar con http:// o https://');
+                return;
+            }
+            
+            try {
+                // Detectar si estamos en móvil
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                // Configurar atributos específicos para móviles
+                if (isMobile) {
+                    videoPlayer.setAttribute('playsinline', '');
+                }
+                
+                // Siempre empezar silenciado para evitar problemas de autoplay
+                videoPlayer.muted = true;
+                
+                // Probar primero con reproducción nativa para Safari y iOS
+                if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    console.log("Usando reproducción nativa HLS");
+                    updateStatus('Usando reproducción nativa HLS (Safari/iOS)');
+                    videoPlayer.src = url;
+                    
+                    // Mejorar la gestión de errores para reproducción nativa
+                    videoPlayer.addEventListener('loadedmetadata', () => {
+                        videoPlayer.play().then(() => {
+                            unmuteNotice.classList.add('visible');
+                        }).catch(e => {
+                            console.error("Error al reproducir:", e);
+                        });
+                    });
+                    
+                    videoPlayer.addEventListener('error', (e) => {
+                        const error = videoPlayer.error;
+                        let errorMsg = "Error en reproducción nativa";
+                        
+                        if (error) {
+                            switch (error.code) {
+                                case 1: // MEDIA_ERR_ABORTED
+                                    errorMsg += ": La reproducción fue abortada por el usuario";
+                                    break;
+                                case 2: // MEDIA_ERR_NETWORK
+                                    errorMsg += ": Error de red al cargar el medio";
+                                    break;
+                                case 3: // MEDIA_ERR_DECODE
+                                    errorMsg += ": Error de decodificación del formato";
+                                    break;
+                                case 4: // MEDIA_ERR_SRC_NOT_SUPPORTED
+                                    errorMsg += ": El formato o tipo de medio no es soportado";
+                                    break;
+                                default:
+                                    errorMsg += `: Código de error ${error.code}`;
+                            }
+                            
+                            if (error.message) {
+                                errorMsg += ` - ${error.message}`;
+                            }
+                        }
+                        
+                        showError(errorMsg);
+                        
+                        // Fallback a HLS.js si la reproducción nativa falla y HLS.js está disponible
+                        if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                            console.log("Fallback a HLS.js después de error nativo");
+                            updateStatus('Intentando con HLS.js después de error en reproducción nativa');
+                            initHlsPlayer(url);
+                        }
+                    });
+                } else if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                    // Para otros navegadores, usar HLS.js
+                    updateStatus('Usando HLS.js para reproducción');
+                    initHlsPlayer(url);
+                } else {
+                    showError('Tu navegador no soporta HLS');
+                    updateStatus('Error: Navegador no compatible');
+                }
+            } catch (e) {
+                showError(`Error al inicializar: ${e.message}`);
+                updateStatus('Error en la inicialización');
             }
         }
-
-        verificarAcceso();
-        iniciarReproducción();
+        
+        // Función para inicializar HLS.js
+        function initHlsPlayer(url) {
+            console.log("Inicializando HLS.js");
+            
+            hlsPlayer = new Hls({
+                enableWorker: true,
+                lowLatencyMode: true,
+                backBufferLength: 90,
+                manifestLoadingMaxRetry: 8,
+                manifestLoadingRetryDelay: 500,
+                manifestLoadingTimeOut: 20000,
+                fragLoadingMaxRetry: 8,
+                fragLoadingRetryDelay: 500,
+                fragLoadingTimeOut: 20000,
+                // Desactivar CORS para pruebas
+                xhrSetup: function(xhr) {
+                    xhr.withCredentials = false;
+                }
+            });
+            
+            hlsPlayer.loadSource(url);
+            hlsPlayer.attachMedia(videoPlayer);
+            
+            hlsPlayer.on(Hls.Events.MEDIA_ATTACHED, () => {
+                updateStatus('Stream conectado, iniciando reproducción...');
+                videoPlayer.play().then(() => {
+                    unmuteNotice.classList.add('visible');
+                    updateStatus('Stream reproduciendo (silenciado)');
+                }).catch(e => {
+                    console.error("Error al reproducir con HLS.js:", e);
+                    updateStatus('Error al iniciar reproducción automática');
+                });
+            });
+            
+            hlsPlayer.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+                updateStatus(`Stream cargado: ${data.levels.length} calidades disponibles`);
+            });
+            
+            hlsPlayer.on(Hls.Events.ERROR, (event, data) => {
+                console.log("Error HLS:", data);
+                
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                    let errorMsg = `Error de red: `;
+                    
+                    if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR) {
+                        errorMsg += `Error cargando manifest. `;
+                        if (data.response) {
+                            errorMsg += `Código: ${data.response.code}, `;
+                            errorMsg += `Texto: ${data.response.text || 'N/A'}`;
+                        }
+                        
+                        // Sugerencias según el error
+                        if (!data.response || data.response.code === 0) {
+                            errorMsg += "\n\nPosibles soluciones: 1) Verifica que el servidor esté accesible. 2) La URL puede estar mal formada. 3) Problema de CORS - el servidor debe permitir acceso desde este origen.";
+                        }
+                        
+                        updateStatus('Error cargando el manifest HLS');
+                    } else if (data.details === Hls.ErrorDetails.FRAG_LOAD_ERROR) {
+                        errorMsg += `Error cargando fragmento. `;
+                        updateStatus('Error cargando fragmentos de video');
+                    }
+                    
+                    showError(errorMsg);
+                }
+                
+                // Intentar recuperarse de errores fatales
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            showError("Error de red. Reintentando...");
+                            updateStatus('Reintentando conexión en 2 segundos...');
+                            setTimeout(() => {
+                                hlsPlayer.startLoad();
+                            }, 2000);
+                            break;
+                            
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            showError("Error de reproducción. Intentando recuperar...");
+                            updateStatus('Intentando recuperar reproducción...');
+                            hlsPlayer.recoverMediaError();
+                            break;
+                            
+                        default:
+                            showError("Error fatal en HLS.js. Recarga la página.");
+                            updateStatus('Error fatal - Intente recargar la página');
+                            break;
+                    }
+                }
+            });
+        }
+        
+        // Eventos para controlar el reproductor
+        videoPlayer.addEventListener('play', () => {
+            if (videoPlayer.muted) {
+                unmuteNotice.classList.add('visible');
+            } else {
+                unmuteNotice.classList.remove('visible');
+            }
+        });
+        
+        videoPlayer.addEventListener('volumechange', () => {
+            if (!videoPlayer.muted) {
+                unmuteNotice.classList.remove('visible');
+                updateStatus('Stream reproduciendo con audio');
+            }
+        });
+        
+        // Evento para el botón de carga
+        loadButton.addEventListener('click', () => {
+            loadStream(streamUrl.value.trim());
+        });
+        
+        // También cargar al presionar Enter en el campo de URL
+        streamUrl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loadStream(streamUrl.value.trim());
+            }
+        });
+        
+        // Cargar automáticamente al inicio con URL predeterminada
+        window.addEventListener('DOMContentLoaded', () => {
+            // Esperar un poco para asegurarse que todo está cargado
+            setTimeout(() => {
+                loadStream(streamUrl.value.trim());
+            }, 500);
+        });
     </script>
 </body>
 </html>
