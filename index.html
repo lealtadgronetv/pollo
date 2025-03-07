@@ -53,18 +53,32 @@
             margin: 10px 0;
             text-align: center;
         }
+
+        #debug-info {
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="url-input">
         <input type="text" id="stream-url" placeholder="URL del stream" value="http://localhost:8080/hls/test.m3u8">
         <button id="load-stream">Cargar</button>
+        <button id="toggle-debug">Debug</button>
     </div>
     
     <div class="video-container">
         <video id="video" controls autoplay></video>
         <div id="error-message">Error al cargar el video.</div>
     </div>
+    
+    <div id="debug-info"></div>
     
     <div class="ad-space">Espacio para publicidad 1</div>
     
@@ -80,23 +94,63 @@
         var errorMessage = document.getElementById('error-message');
         var streamUrlInput = document.getElementById('stream-url');
         var loadStreamButton = document.getElementById('load-stream');
+        var toggleDebugButton = document.getElementById('toggle-debug');
+        var debugInfo = document.getElementById('debug-info');
         var hls = null;
         
+        function logDebug(message) {
+            console.log(message);
+            var logEntry = document.createElement('div');
+            logEntry.textContent = (new Date()).toLocaleTimeString() + ': ' + message;
+            debugInfo.appendChild(logEntry);
+            debugInfo.scrollTop = debugInfo.scrollHeight;
+        }
+        
         function showError(message) {
-            console.error(message);
+            logDebug('ERROR: ' + message);
             errorMessage.textContent = message;
             errorMessage.style.display = 'block';
             setTimeout(function() {
                 errorMessage.style.display = 'none';
-            }, 5000);
+            }, 10000); // Mostrar por más tiempo
+        }
+        
+        toggleDebugButton.addEventListener('click', function() {
+            if (debugInfo.style.display === 'none' || !debugInfo.style.display) {
+                debugInfo.style.display = 'block';
+            } else {
+                debugInfo.style.display = 'none';
+            }
+        });
+        
+        function checkUrl(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch (e) {
+                return false;
+            }
         }
         
         function loadStream(url) {
+            // Validar URL
+            if (!checkUrl(url)) {
+                showError('URL inválida. Debe ser una URL completa con http:// o https://');
+                return;
+            }
+            
             // Limpiar errores previos
             errorMessage.style.display = 'none';
+            logDebug('Intentando cargar stream: ' + url);
+            
+            // Corregir problemas comunes con la URL
+            if (url.indexOf('localhost') > -1 && window.location.protocol === 'https:') {
+                logDebug('Advertencia: Intentando cargar contenido HTTP en página HTTPS');
+            }
             
             // Destruir instancia previa de HLS si existe
             if (hls) {
+                logDebug('Destruyendo instancia HLS previa');
                 hls.destroy();
                 hls = null;
             }
@@ -107,30 +161,61 @@
             
             if (Hls.isSupported()) {
                 try {
+                    logDebug('HLS es soportado. Inicializando...');
                     hls = new Hls({ 
                         debug: true,
                         xhrSetup: function(xhr) {
                             xhr.withCredentials = false; // Para CORS
-                        }
+                        },
+                        // Configuración para problemas de manifestLoadError
+                        manifestLoadingTimeOut: 10000,  // Aumentar timeout
+                        manifestLoadingMaxRetry: 5,     // Más reintentos
+                        manifestLoadingRetryDelay: 1000 // Esperar entre reintentos
                     });
                     
+                    logDebug('Cargando fuente: ' + url);
                     hls.loadSource(url);
+                    
+                    logDebug('Conectando al elemento video');
                     hls.attachMedia(video);
                     
                     hls.on(Hls.Events.MEDIA_ATTACHED, function() {
-                        console.log("HLS: Media attached");
+                        logDebug("HLS: Media attached");
                         video.play().catch(function(e) {
-                            console.warn("Reproducción automática bloqueada:", e);
+                            logDebug("Reproducción automática bloqueada: " + e.message);
                         });
                     });
                     
+                    hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
+                        logDebug("HLS: Manifest cargado correctamente. Niveles: " + data.levels.length);
+                    });
+                    
                     hls.on(Hls.Events.ERROR, function(event, data) {
-                        console.error('Error HLS:', data);
+                        if (data.details === 'manifestLoadError') {
+                            logDebug('Error específico manifestLoadError: ' + data.details);
+                            logDebug('URL del manifiesto: ' + data.url);
+                            logDebug('Código de respuesta: ' + (data.response ? data.response.code : 'N/A'));
+                            logDebug('Texto de respuesta: ' + (data.response ? data.response.text : 'N/A'));
+                            
+                            // Sugerencias específicas para manifestLoadError
+                            if (data.response && data.response.code === 0) {
+                                showError('No se puede acceder al archivo m3u8. Posible problema CORS o servidor no disponible.');
+                            } else if (data.response && data.response.code === 404) {
+                                showError('El archivo m3u8 no existe (404). Verifica la URL.');
+                            } else if (data.response && data.response.code === 403) {
+                                showError('Acceso denegado al archivo m3u8 (403). Verifica permisos.');
+                            } else {
+                                showError('Error al cargar el manifiesto: ' + data.details);
+                            }
+                        } else {
+                            logDebug('Error HLS: ' + data.type + ' - ' + data.details);
+                        }
                         
                         if (data.fatal) {
                             switch (data.type) {
                                 case Hls.ErrorTypes.NETWORK_ERROR:
                                     showError('Error de red: ' + data.details);
+                                    logDebug('Reintentando cargar en 3 segundos...');
                                     setTimeout(function() {
                                         hls.startLoad();
                                     }, 3000);
@@ -151,13 +236,15 @@
                     showError('Error al inicializar HLS: ' + e.message);
                 }
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                // Para Safari
+                logDebug('Usando soporte HLS nativo (Safari)');
                 video.src = url;
                 video.addEventListener('loadedmetadata', function() {
+                    logDebug('Video cargado en Safari');
                     video.play();
                 });
-                video.addEventListener('error', function() {
-                    showError('Error al cargar el video en Safari');
+                video.addEventListener('error', function(e) {
+                    logDebug('Error en Safari: ' + video.error.code);
+                    showError('Error al cargar el video en Safari: ' + video.error.message);
                 });
             } else {
                 showError('HLS no es compatible con este navegador');
@@ -183,6 +270,7 @@
         
         // Cargar stream inicial
         document.addEventListener('DOMContentLoaded', function() {
+            logDebug('Página cargada');
             var initialUrl = streamUrlInput.value.trim();
             if (initialUrl) {
                 loadStream(initialUrl);
