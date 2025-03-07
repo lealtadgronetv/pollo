@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reproductor HLS</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #000; margin: 0; }
+        video { width: 100%; max-width: 800px; height: auto; }
+    </style>
 </head>
 <body>
-    <video id="videoPlayer" controls width="640" height="360" autoplay muted></video>
+    <video id="videoPlayer" controls autoplay muted></video>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -21,26 +25,13 @@
                 hls.on(Hls.Events.MANIFEST_PARSED, function() {
                     video.play();
                 });
-                
-                // Manejar errores y recargar en caso de fallo
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                    if (data.fatal) {
-                        console.warn("Recargando stream...");
-                        hls.destroy();
-                        setTimeout(() => {
-                            hls = new Hls();
-                            hls.loadSource(videoSrc);
-                            hls.attachMedia(video);
-                        }, 2000);
-                    }
-                });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = videoSrc;
                 video.addEventListener('loadedmetadata', function() {
                     video.play();
                 });
             } else {
-                console.error("El navegador no soporta HLS");
+                alert("Tu navegador no soporta HLS. Prueba en Safari o usa un navegador con compatibilidad con HLS.js");
             }
         });
     </script>
