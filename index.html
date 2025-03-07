@@ -53,22 +53,9 @@
             background: #000; 
         }
         
-        .controls {
-            margin: 15px 0;
-        }
-        
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            font-size: 16px;
-            outline: none;
-            transition: border 0.3s;
-        }
-        
-        input:focus {
-            border-color: var(--primary-color);
+        /* Campo de URL oculto pero mantenido para funcionalidad */
+        #streamUrl {
+            display: none;
         }
         
         #error { 
@@ -178,9 +165,8 @@
         
         <div class="content-wrapper">
             <div class="main-content">
-                <div class="controls">
-                    <input type="text" id="streamUrl" placeholder="URL del stream" value="http://localhost:8080/hls/test.m3u8">
-                </div>
+                <!-- Campo oculto para mantener funcionalidad -->
+                <input type="text" id="streamUrl" value="http://localhost:8080/hls/test.m3u8">
                 
                 <div id="error"></div>
                 
@@ -337,18 +323,6 @@
                 showError(`Error al inicializar: ${e.message}`);
             }
         }
-        
-        // Event listener para cargar cuando se presiona Enter
-        streamUrl.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                loadStream(streamUrl.value.trim());
-            }
-        });
-        
-        // Event listener para cargar cuando el campo pierde el foco
-        streamUrl.addEventListener('blur', () => {
-            loadStream(streamUrl.value.trim());
-        });
         
         // Cargar automáticamente
         window.addEventListener('DOMContentLoaded', () => {
