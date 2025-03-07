@@ -3,278 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transmisión de Fútbol</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
+    <title>Stream HLS</title>
+    <!-- Versión alternativa de HLS.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.3.5/hls.min.js"></script>
     <style>
-        body {
-            margin: 0;
-            padding: 10px;
-            font-family: Arial, sans-serif;
-        }
-        
-        .video-container {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        #video {
-            width: 100%;
-            background: black;
-        }
-        
-        #error-message {
-            color: red;
-            text-align: center;
-            margin: 10px 0;
-            display: none;
-        }
-        
-        .url-input {
-            width: 100%;
-            max-width: 1000px;
-            margin: 10px auto;
-            display: flex;
-        }
-        
-        .url-input input {
-            flex: 1;
-            padding: 5px;
-            margin-right: 5px;
-        }
-        
-        .url-input button {
-            padding: 5px 10px;
-        }
-        
-        .ad-space {
-            border: 1px solid #ccc;
-            padding: 5px;
-            margin: 10px 0;
-            text-align: center;
-        }
-
-        #debug-info {
-            margin-top: 10px;
-            border: 1px solid #ddd;
-            padding: 10px;
-            font-family: monospace;
-            font-size: 12px;
-            max-height: 150px;
-            overflow-y: auto;
-            display: none;
-        }
+        body { margin: 0; padding: 10px; font-family: Arial; }
+        video { width: 100%; max-width: 800px; background: #000; }
+        .controls { margin: 10px 0; }
+        #error { color: red; font-weight: bold; }
+        .ads { border: 1px dashed #ccc; padding: 10px; margin: 10px 0; text-align: center; }
     </style>
 </head>
 <body>
-    <div class="url-input">
-        <input type="text" id="stream-url" placeholder="URL del stream" value="http://localhost:8080/hls/test.m3u8">
-        <button id="load-stream">Cargar</button>
-        <button id="toggle-debug">Debug</button>
+    <div class="controls">
+        <input type="text" id="streamUrl" placeholder="URL del stream" value="http://localhost:8080/hls/test.m3u8" style="width: 70%;">
+        <button id="loadBtn">Cargar</button>
     </div>
     
-    <div class="video-container">
-        <video id="video" controls autoplay></video>
-        <div id="error-message">Error al cargar el video.</div>
-    </div>
+    <div id="error"></div>
+    <video id="videoPlayer" controls></video>
     
-    <div id="debug-info"></div>
-    
-    <div class="ad-space">Espacio para publicidad 1</div>
-    
-    <div style="display: flex; justify-content: space-between;">
-        <div class="ad-space" style="width: 48%;">Espacio para publicidad 2</div>
-        <div class="ad-space" style="width: 48%;">Espacio para publicidad 3</div>
-    </div>
-    
-    <div class="ad-space">Espacio para publicidad 4</div>
+    <div class="ads">Espacio publicitario</div>
     
     <script>
-        var video = document.getElementById('video');
-        var errorMessage = document.getElementById('error-message');
-        var streamUrlInput = document.getElementById('stream-url');
-        var loadStreamButton = document.getElementById('load-stream');
-        var toggleDebugButton = document.getElementById('toggle-debug');
-        var debugInfo = document.getElementById('debug-info');
-        var hls = null;
+        const videoPlayer = document.getElementById('videoPlayer');
+        const streamUrl = document.getElementById('streamUrl');
+        const loadBtn = document.getElementById('loadBtn');
+        const errorDisplay = document.getElementById('error');
+        let hlsPlayer = null;
         
-        function logDebug(message) {
-            console.log(message);
-            var logEntry = document.createElement('div');
-            logEntry.textContent = (new Date()).toLocaleTimeString() + ': ' + message;
-            debugInfo.appendChild(logEntry);
-            debugInfo.scrollTop = debugInfo.scrollHeight;
+        // Función para mostrar errores
+        function showError(msg) {
+            errorDisplay.textContent = msg;
+            console.error(msg);
         }
         
-        function showError(message) {
-            logDebug('ERROR: ' + message);
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-            setTimeout(function() {
-                errorMessage.style.display = 'none';
-            }, 10000); // Mostrar por más tiempo
+        // Función para limpiar errores
+        function clearError() {
+            errorDisplay.textContent = '';
         }
         
-        toggleDebugButton.addEventListener('click', function() {
-            if (debugInfo.style.display === 'none' || !debugInfo.style.display) {
-                debugInfo.style.display = 'block';
-            } else {
-                debugInfo.style.display = 'none';
-            }
-        });
-        
-        function checkUrl(url) {
-            try {
-                new URL(url);
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
-        
+        // Función para cargar el stream
         function loadStream(url) {
-            // Validar URL
-            if (!checkUrl(url)) {
-                showError('URL inválida. Debe ser una URL completa con http:// o https://');
+            clearError();
+            
+            // Limpiar instancia previa
+            if (hlsPlayer) {
+                hlsPlayer.destroy();
+                hlsPlayer = null;
+            }
+            
+            // Restablecer el reproductor
+            videoPlayer.src = '';
+            videoPlayer.load();
+            
+            // Verificar si la URL parece válida
+            if (!url.startsWith('http')) {
+                showError('La URL debe comenzar con http:// o https://');
                 return;
             }
             
-            // Limpiar errores previos
-            errorMessage.style.display = 'none';
-            logDebug('Intentando cargar stream: ' + url);
-            
-            // Corregir problemas comunes con la URL
-            if (url.indexOf('localhost') > -1 && window.location.protocol === 'https:') {
-                logDebug('Advertencia: Intentando cargar contenido HTTP en página HTTPS');
-            }
-            
-            // Destruir instancia previa de HLS si existe
-            if (hls) {
-                logDebug('Destruyendo instancia HLS previa');
-                hls.destroy();
-                hls = null;
-            }
-            
-            // Limpiar video source
-            video.src = "";
-            video.load();
-            
-            if (Hls.isSupported()) {
-                try {
-                    logDebug('HLS es soportado. Inicializando...');
-                    hls = new Hls({ 
-                        debug: true,
+            try {
+                // Probar primero con reproducción nativa para Safari y iOS
+                if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    videoPlayer.src = url;
+                    videoPlayer.addEventListener('loadedmetadata', () => {
+                        videoPlayer.play();
+                    });
+                    videoPlayer.addEventListener('error', (e) => {
+                        showError(`Error en reproducción nativa: ${videoPlayer.error?.message || 'Desconocido'}`);
+                    });
+                    return;
+                }
+                
+                // Para otros navegadores, usar HLS.js
+                if (Hls.isSupported()) {                    
+                    hlsPlayer = new Hls({
+                        enableWorker: true,
+                        lowLatencyMode: true,
+                        backBufferLength: 90,
+                        // Configuraciones para manifestLoadError
+                        manifestLoadingMaxRetry: 8,
+                        manifestLoadingRetryDelay: 500,
+                        manifestLoadingTimeOut: 20000,
+                        // Desactivar CORS para pruebas locales
                         xhrSetup: function(xhr) {
-                            xhr.withCredentials = false; // Para CORS
-                        },
-                        // Configuración para problemas de manifestLoadError
-                        manifestLoadingTimeOut: 10000,  // Aumentar timeout
-                        manifestLoadingMaxRetry: 5,     // Más reintentos
-                        manifestLoadingRetryDelay: 1000 // Esperar entre reintentos
+                            xhr.withCredentials = false;
+                        }
                     });
                     
-                    logDebug('Cargando fuente: ' + url);
-                    hls.loadSource(url);
+                    hlsPlayer.loadSource(url);
+                    hlsPlayer.attachMedia(videoPlayer);
                     
-                    logDebug('Conectando al elemento video');
-                    hls.attachMedia(video);
-                    
-                    hls.on(Hls.Events.MEDIA_ATTACHED, function() {
-                        logDebug("HLS: Media attached");
-                        video.play().catch(function(e) {
-                            logDebug("Reproducción automática bloqueada: " + e.message);
-                        });
+                    hlsPlayer.on(Hls.Events.MEDIA_ATTACHED, () => {
+                        videoPlayer.play();
                     });
                     
-                    hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
-                        logDebug("HLS: Manifest cargado correctamente. Niveles: " + data.levels.length);
-                    });
-                    
-                    hls.on(Hls.Events.ERROR, function(event, data) {
-                        if (data.details === 'manifestLoadError') {
-                            logDebug('Error específico manifestLoadError: ' + data.details);
-                            logDebug('URL del manifiesto: ' + data.url);
-                            logDebug('Código de respuesta: ' + (data.response ? data.response.code : 'N/A'));
-                            logDebug('Texto de respuesta: ' + (data.response ? data.response.text : 'N/A'));
+                    hlsPlayer.on(Hls.Events.ERROR, (event, data) => {
+                        console.log("Error HLS:", data);
+                        
+                        if (data.type === Hls.ErrorTypes.NETWORK_ERROR && 
+                            data.details === 'manifestLoadError') {
                             
-                            // Sugerencias específicas para manifestLoadError
-                            if (data.response && data.response.code === 0) {
-                                showError('No se puede acceder al archivo m3u8. Posible problema CORS o servidor no disponible.');
-                            } else if (data.response && data.response.code === 404) {
-                                showError('El archivo m3u8 no existe (404). Verifica la URL.');
-                            } else if (data.response && data.response.code === 403) {
-                                showError('Acceso denegado al archivo m3u8 (403). Verifica permisos.');
-                            } else {
-                                showError('Error al cargar el manifiesto: ' + data.details);
+                            // Información de depuración detallada
+                            let errorMsg = `Error cargando manifest. `;
+                            if (data.response) {
+                                errorMsg += `Código: ${data.response.code}, `;
+                                errorMsg += `Texto: ${data.response.text || 'N/A'}`;
                             }
-                        } else {
-                            logDebug('Error HLS: ' + data.type + ' - ' + data.details);
+                            
+                            showError(errorMsg);
+                            
+                            // Sugerencias según el error
+                            if (!data.response || data.response.code === 0) {
+                                showError(errorMsg + "\n\nPosibles soluciones: 1) Verifica que el servidor esté ejecutándose. 2) La URL puede estar mal formada. 3) Problema de CORS - el servidor debe permitir acceso desde este origen.");
+                            }
                         }
                         
+                        // Intentar recuperarse de errores fatales
                         if (data.fatal) {
                             switch (data.type) {
                                 case Hls.ErrorTypes.NETWORK_ERROR:
-                                    showError('Error de red: ' + data.details);
-                                    logDebug('Reintentando cargar en 3 segundos...');
-                                    setTimeout(function() {
-                                        hls.startLoad();
-                                    }, 3000);
+                                    showError("Error de red. Reintentando...");
+                                    setTimeout(() => hlsPlayer.startLoad(), 2000);
                                     break;
                                     
                                 case Hls.ErrorTypes.MEDIA_ERROR:
-                                    showError('Error en el formato del video: ' + data.details);
-                                    hls.recoverMediaError();
+                                    showError("Error de reproducción. Intentando recuperar...");
+                                    hlsPlayer.recoverMediaError();
                                     break;
                                     
                                 default:
-                                    showError('Error fatal: ' + data.details);
+                                    showError("Error fatal en HLS.js. Recarga la página.");
                                     break;
                             }
                         }
                     });
-                } catch (e) {
-                    showError('Error al inicializar HLS: ' + e.message);
+                } else {
+                    showError('Tu navegador no soporta HLS');
                 }
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                logDebug('Usando soporte HLS nativo (Safari)');
-                video.src = url;
-                video.addEventListener('loadedmetadata', function() {
-                    logDebug('Video cargado en Safari');
-                    video.play();
-                });
-                video.addEventListener('error', function(e) {
-                    logDebug('Error en Safari: ' + video.error.code);
-                    showError('Error al cargar el video en Safari: ' + video.error.message);
-                });
-            } else {
-                showError('HLS no es compatible con este navegador');
+            } catch (e) {
+                showError(`Error al inicializar: ${e.message}`);
             }
         }
         
-        // Cargar stream al hacer clic en el botón
-        loadStreamButton.addEventListener('click', function() {
-            var url = streamUrlInput.value.trim();
-            if (url) {
-                loadStream(url);
-            } else {
-                showError('Por favor ingresa una URL válida');
-            }
+        // Event listeners
+        loadBtn.addEventListener('click', () => {
+            loadStream(streamUrl.value.trim());
         });
         
-        // Cargar stream al presionar Enter en el input
-        streamUrlInput.addEventListener('keypress', function(e) {
+        streamUrl.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                loadStreamButton.click();
+                loadStream(streamUrl.value.trim());
             }
         });
         
-        // Cargar stream inicial
-        document.addEventListener('DOMContentLoaded', function() {
-            logDebug('Página cargada');
-            var initialUrl = streamUrlInput.value.trim();
-            if (initialUrl) {
-                loadStream(initialUrl);
-            }
+        // Cargar automáticamente
+        window.addEventListener('DOMContentLoaded', () => {
+            // Esperar un poco para asegurarse que todo está cargado
+            setTimeout(() => {
+                loadStream(streamUrl.value.trim());
+            }, 500);
         });
     </script>
 </body>
