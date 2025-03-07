@@ -3,29 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Streaming HLS</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>Play</title>
 </head>
 <body>
-    <video id="video" controls width="640" height="360"></video>
-
-    <script>
-        var video = document.getElementById('video');
-        var videoSrc = "https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8";
-
-        if (Hls.isSupported()) {
-            var hls = new Hls();
-            hls.loadSource(videoSrc);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                video.play();
-            });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = videoSrc;
-            video.addEventListener('loadedmetadata', function () {
-                video.play();
-            });
-        }
-    </script>
+    <button onclick="window.open('https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8', '_blank')">Play</button>
 </body>
 </html>
