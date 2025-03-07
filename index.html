@@ -30,7 +30,12 @@
             }
             
             if (Hls.isSupported()) {
-                var hls = new Hls();
+                var hls = new Hls({
+                    xhrSetup: function (xhr) {
+                        xhr.withCredentials = false; // Deshabilitar credenciales para evitar problemas de CORS
+                        xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+                    }
+                });
                 hls.loadSource(videoSrc);
                 hls.attachMedia(video);
                 hls.on(Hls.Events.MANIFEST_PARSED, function() {
@@ -38,9 +43,8 @@
                 });
                 
                 hls.on(Hls.Events.ERROR, function(event, data) {
-                    if (data.fatal) {
-                        statusText.innerText = "Error de red, intenta otro enlace.";
-                    }
+                    console.error("HLS Error:", data);
+                    statusText.innerText = "Error: " + data.type + " - " + data.details;
                 });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = videoSrc;
