@@ -1,28 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Player</title>
+    <title>Reproductor HLS</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { margin: 0; padding: 0; background: black; }
-        video { width: 100%; height: 100vh; }
+        body { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background-color: #000; margin: 0; }
+        video { width: 100%; max-width: 800px; height: auto; }
+        input { margin: 10px; padding: 5px; width: 80%; max-width: 400px; }
+        button { padding: 5px 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <video id="video" controls autoplay muted playsinline></video>
+    <input type="text" id="videoUrl" placeholder="Ingresa un enlace .m3u8" value="">
+    <button onclick="loadStream()">Reproducir</button>
+    <video id="videoPlayer" controls autoplay muted></video>
+    <p id="status" style="color: white; text-align: center; margin-top: 10px;"></p>
+
     <script>
-        var video = document.getElementById('video');
-        var streamUrl = "https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8";
-        
-        if (Hls.isSupported()) {
-            var hls = new Hls();
-            hls.loadSource(streamUrl);
-            hls.attachMedia(video);
-        }
-        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = streamUrl;
+        function loadStream() {
+            var video = document.getElementById('videoPlayer');
+            var videoSrc = document.getElementById('videoUrl').value;
+            var statusText = document.getElementById('status');
+            
+            if (!videoSrc.endsWith(".m3u8")) {
+                statusText.innerText = "Por favor ingresa un enlace válido .m3u8";
+                return;
+            }
+            
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(videoSrc);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play();
+                });
+                
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    if (data.fatal) {
+                        statusText.innerText = "Error de red, intenta otro enlace.";
+                    }
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSrc;
+                video.addEventListener('loadedmetadata', function() {
+                    video.play();
+                });
+            } else {
+                statusText.innerText = "Tu navegador no soporta HLS.";
+            }
         }
     </script>
 </body>
