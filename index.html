@@ -1,56 +1,29 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor HLS</title>
+    <title>Player</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #000; margin: 0; }
-        video { width: 100%; max-width: 800px; height: auto; }
+        body { margin: 0; padding: 0; background: black; }
+        video { width: 100%; height: 100vh; }
     </style>
 </head>
 <body>
-    <video id="videoPlayer" controls autoplay muted></video>
-    <p id="status" style="color: white; text-align: center; margin-top: 10px;"></p>
-
+    <video id="video" controls autoplay muted playsinline></video>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var video = document.getElementById('videoPlayer');
-            var statusText = document.getElementById('status');
-            var videoSrc = "https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8";
-            var hls;
-
-            function startStream() {
-                if (Hls.isSupported()) {
-                    hls = new Hls();
-                    hls.loadSource(videoSrc);
-                    hls.attachMedia(video);
-                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                        video.play();
-                    });
-                    
-                    hls.on(Hls.Events.ERROR, function(event, data) {
-                        if (data.fatal) {
-                            statusText.innerText = "Error de red, intentando reconectar...";
-                            setTimeout(() => {
-                                hls.destroy();
-                                startStream();
-                            }, 3000);
-                        }
-                    });
-                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    video.src = videoSrc;
-                    video.addEventListener('loadedmetadata', function() {
-                        video.play();
-                    });
-                } else {
-                    alert("Tu navegador no soporta HLS. Prueba en Safari o usa un navegador con compatibilidad con HLS.js");
-                }
-            }
-            
-            startStream();
-        });
+        var video = document.getElementById('video');
+        var streamUrl = "https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8";
+        
+        if (Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource(streamUrl);
+            hls.attachMedia(video);
+        }
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = streamUrl;
+        }
     </script>
 </body>
 </html>
