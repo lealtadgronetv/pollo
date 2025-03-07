@@ -3,33 +3,366 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Play</title>
+    <title>FutbolPlay - Transmisiones en vivo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #0f1923;
+            color: #ffffff;
+        }
+        
+        .header {
+            background-color: #1d2b3a;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4caf50;
+        }
+        
+        .logo i {
+            margin-right: 8px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #4caf50;
+        }
+        
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            background-color: #000;
+            aspect-ratio: 16/9;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .controls-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .video-container:hover .controls-overlay {
+            opacity: 1;
+        }
+        
+        .match-info {
+            background-color: rgba(29, 43, 58, 0.8);
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .teams {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .vs {
+            color: #aaa;
+            margin: 0 10px;
+        }
+        
+        .match-status {
+            background-color: #4caf50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+        
+        .stream-info {
+            background-color: #1d2b3a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stream-info h2 {
+            margin-bottom: 10px;
+            color: #4caf50;
+        }
+        
+        .stream-info p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .chat-container {
+            background-color: #1d2b3a;
+            border-radius: 8px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+        }
+        
+        .chat-container h2 {
+            margin-bottom: 10px;
+            color: #4caf50;
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .ad-container {
+            background-color: #1d2b3a;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .ad-container.rectangle {
+            height: 250px;
+        }
+        
+        .ad-container.square {
+            height: 250px;
+        }
+        
+        .ad-container.sidebar-ad {
+            height: 600px;
+        }
+        
+        .ad-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+        
+        .ad-placeholder {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(76, 175, 80, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px dashed #4caf50;
+            color: #4caf50;
+        }
+        
+        .bottom-ads {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .footer {
+            background-color: #1d2b3a;
+            padding: 20px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        #error-message {
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 10;
+        }
+        
+        @media (max-width: 768px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .bottom-ads {
+                flex-direction: column;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
-    <video id="video" controls autoplay style="width: 100vw; height: 100vh; background: black;" crossorigin="anonymous"></video>
-    <p id="error-message" style="color: red; text-align: center; display: none;">Error al cargar el video. Intenta recargar la página.</p>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-futbol"></i> FutbolPlay
+        </div>
+        <nav class="nav-links">
+            <a href="#"><i class="fas fa-home"></i> Inicio</a>
+            <a href="#"><i class="fas fa-calendar"></i> Calendario</a>
+            <a href="#"><i class="fas fa-trophy"></i> Torneos</a>
+            <a href="#"><i class="fas fa-info-circle"></i> Acerca de</a>
+        </nav>
+    </header>
+    
+    <div class="main-container">
+        <div class="match-info">
+            <div class="teams">
+                <span>Barcelona</span>
+                <span class="vs">VS</span>
+                <span>Real Madrid</span>
+            </div>
+            <div class="match-status">EN VIVO</div>
+        </div>
+        
+        <div class="video-container">
+            <video id="video" controls autoplay crossorigin="anonymous"></video>
+            <div id="error-message">Error al cargar el video. Intenta recargar la página.</div>
+        </div>
+        
+        <div class="ad-container rectangle">
+            <div class="ad-label">Publicidad</div>
+            <div class="ad-placeholder">Espacio para banner publicitario (728x90)</div>
+        </div>
+        
+        <div class="content-layout">
+            <div class="main-content">
+                <div class="stream-info">
+                    <h2>Información del partido</h2>
+                    <p>Disfruta de la transmisión en vivo del Clásico español entre Barcelona y Real Madrid, correspondiente a la jornada 10 de La Liga.</p>
+                    <p>Estadio: Santiago Bernabéu | Árbitro: Carlos del Cerro Grande</p>
+                </div>
+                
+                <div class="chat-container">
+                    <h2>Chat en vivo</h2>
+                    <p>Conéctate para participar en el chat...</p>
+                </div>
+                
+                <div class="bottom-ads">
+                    <div class="ad-container square">
+                        <div class="ad-label">Publicidad</div>
+                        <div class="ad-placeholder">Anuncio (300x250)</div>
+                    </div>
+                    <div class="ad-container square">
+                        <div class="ad-label">Publicidad</div>
+                        <div class="ad-placeholder">Anuncio (300x250)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="ad-container sidebar-ad">
+                    <div class="ad-label">Publicidad</div>
+                    <div class="ad-placeholder">Anuncio vertical (300x600)</div>
+                </div>
+                
+                <div class="ad-container rectangle">
+                    <div class="ad-label">Publicidad</div>
+                    <div class="ad-placeholder">Anuncio (300x250)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <p>&copy; 2025 FutbolPlay - Todos los derechos reservados</p>
+    </footer>
+    
     <script>
         var video = document.getElementById('video');
         var errorMessage = document.getElementById('error-message');
         var videoSrc = 'http://localhost:8080/hls/test.m3u8';
-
+        
         function showError(message) {
             console.error(message);
+            errorMessage.textContent = message;
             errorMessage.style.display = 'block';
+            setTimeout(function() {
+                errorMessage.style.display = 'none';
+            }, 5000);
         }
-
+        
         if (Hls.isSupported()) {
-            var hls = new Hls({ debug: true }); // Activa logs
+            var hls = new Hls({ 
+                debug: false,
+                maxBufferLength: 30,
+                maxMaxBufferLength: 600,
+                maxBufferSize: 60 * 1000 * 1000
+            });
+            
             hls.loadSource(videoSrc);
             hls.attachMedia(video);
-
+            
+            hls.on(Hls.Events.MEDIA_ATTACHED, function() {
+                video.play();
+            });
+            
             hls.on(Hls.Events.ERROR, function(event, data) {
                 console.error('Error HLS:', data);
                 if (data.fatal) {
                     switch (data.type) {
                         case Hls.ErrorTypes.NETWORK_ERROR:
                             showError('Error de red. Verifica la conexión o la URL del stream.');
+                            hls.startLoad();
                             break;
                         case Hls.ErrorTypes.MEDIA_ERROR:
                             showError('Error en el formato del video.');
@@ -49,10 +382,15 @@
         } else {
             showError('HLS no es compatible con este navegador.');
         }
+        
+        // Función para mostrar/ocultar controles cuando el mouse está sobre el video
+        var videoContainer = document.querySelector('.video-container');
+        
+        // Detección de actividad para dispositivos móviles
+        let lastTouchTime = 0;
+        document.addEventListener('touchstart', function() {
+            lastTouchTime = new Date().getTime();
+        });
     </script>
 </body>
 </html>
-
-
-
-
