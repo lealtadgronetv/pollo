@@ -7,27 +7,42 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
-    <video id="videoPlayer" controls width="640" height="360"></video>
+    <video id="videoPlayer" controls width="640" height="360" autoplay muted></video>
 
     <script>
-        var video = document.getElementById('videoPlayer');
-        var videoSrc = "https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8";
+        document.addEventListener("DOMContentLoaded", function() {
+            var video = document.getElementById('videoPlayer');
+            var videoSrc = "https://2bb6-38-172-130-234.ngrok-free.app/hls/test.m3u8";
 
-        if (Hls.isSupported()) {
-            var hls = new Hls();
-            hls.loadSource(videoSrc);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                video.play();
-            });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = videoSrc;
-            video.addEventListener('loadedmetadata', function() {
-                video.play();
-            });
-        } else {
-            console.error("El navegador no soporta HLS");
-        }
+            if (Hls.isSupported()) {
+                var hls = new Hls();
+                hls.loadSource(videoSrc);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play();
+                });
+                
+                // Manejar errores y recargar en caso de fallo
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    if (data.fatal) {
+                        console.warn("Recargando stream...");
+                        hls.destroy();
+                        setTimeout(() => {
+                            hls = new Hls();
+                            hls.loadSource(videoSrc);
+                            hls.attachMedia(video);
+                        }, 2000);
+                    }
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = videoSrc;
+                video.addEventListener('loadedmetadata', function() {
+                    video.play();
+                });
+            } else {
+                console.error("El navegador no soporta HLS");
+            }
+        });
     </script>
 </body>
 </html>
