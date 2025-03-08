@@ -3,70 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor HLS</title>
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <title>Live Stream</title>
     <style>
-        body { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background-color: #000; margin: 0; }
-        video { width: 100%; max-width: 800px; height: auto; }
-        input { margin: 10px; padding: 5px; width: 80%; max-width: 400px; }
-        button { padding: 5px 10px; cursor: pointer; }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            margin: 0;
+        }
+        iframe {
+            width: 80%;
+            height: 80vh;
+            border: none;
+        }
     </style>
 </head>
 <body>
-    <input type="text" id="videoUrl" placeholder="Ingresa un enlace .m3u8" value="">
-    <button onclick="loadStream()">Reproducir</button>
-    <video id="videoPlayer" controls autoplay muted></video>
-    <p id="status" style="color: white; text-align: center; margin-top: 10px;"></p>
-
-    <script>
-        async function testUrl(url) {
-            try {
-                let response = await fetch(url, { method: 'HEAD', mode: 'cors' });
-                if (!response.ok) throw new Error("Servidor no accesible");
-                return true;
-            } catch (error) {
-                return false;
-            }
-        }
-
-        async function loadStream() {
-            var video = document.getElementById('videoPlayer');
-            var videoSrc = document.getElementById('videoUrl').value;
-            var statusText = document.getElementById('status');
-            
-            if (!videoSrc.endsWith(".m3u8")) {
-                statusText.innerText = "Por favor ingresa un enlace válido .m3u8";
-                return;
-            }
-            
-            statusText.innerText = "Verificando acceso al enlace...";
-            let isAccessible = await testUrl(videoSrc);
-            if (!isAccessible) {
-                statusText.innerText = "Error: No se puede acceder al enlace. Verifica CORS o el estado del servidor.";
-                return;
-            }
-            
-            if (Hls.isSupported()) {
-                var hls = new Hls();
-                hls.loadSource(videoSrc);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                    video.play();
-                });
-                
-                hls.on(Hls.Events.ERROR, function(event, data) {
-                    console.error("HLS Error:", data);
-                    statusText.innerText = "Error: " + data.type + " - " + data.details;
-                });
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = videoSrc;
-                video.addEventListener('loadedmetadata', function() {
-                    video.play();
-                });
-            } else {
-                statusText.innerText = "Tu navegador no soporta HLS.";
-            }
-        }
-    </script>
+    <iframe src="https://f4fe-38-172-130-234.ngrok-free.app/embed/video" allowfullscreen></iframe>
 </body>
 </html>
