@@ -50,6 +50,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             margin: 0 auto;
+            z-index: 5; /* Asegura que el video tenga mayor prioridad */
         }
         
         iframe {
@@ -97,6 +98,8 @@
             padding: 15px;
             background-color: #1e1e1e;
             border-radius: 8px;
+            position: relative;
+            z-index: 5;
         }
         
         .status {
@@ -121,6 +124,31 @@
             background-color: #1e1e1e;
             border-radius: 8px;
             overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Estilo específico para anuncios en móvil */
+        @media (max-width: 768px) {
+            .ad-sidebar {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .ad-container {
+                width: 100%;
+                max-width: 320px;
+                margin: 0 auto;
+                overflow: hidden;
+                clear: both;
+            }
+            
+            /* Contenedor para centrar y limitar el tamaño de los anuncios */
+            .ad-container iframe {
+                display: block !important;
+                margin: 0 auto !important;
+                max-width: 100% !important;
+            }
         }
         
         footer {
@@ -129,6 +157,8 @@
             padding: 20px;
             border-top: 1px solid #333;
             color: #888;
+            position: relative;
+            z-index: 5;
         }
         
         @media (max-width: 768px) {
@@ -170,23 +200,55 @@
             <p>Disfruta de nuestra transmisión en vivo en alta calidad.</p>
         </div>
         
+        <!-- Contenedor de anuncios mejorado -->
         <div class="ad-sidebar">
             <div class="ad-container">
+                <div id="ad-slot-1"></div>
                 <script type="text/javascript">
-                    atOptions = {
-                        'key' : '09d25cb4a0f0d326ab324f93517d54aa',
-                        'format' : 'iframe',
-                        'height' : 300,
-                        'width' : 160,
-                        'params' : {}
-                    };
-                    document.write('<scr' + 'ipt type="text/javascript" src="//www.highperformanceformat.com/09d25cb4a0f0d326ab324f93517d54aa/invoke.js"></scr' + 'ipt>');
+                    // Función para cargar el anuncio 1 de manera controlada
+                    function loadAd1() {
+                        if (document.getElementById('ad-slot-1')) {
+                            var script = document.createElement('script');
+                            script.setAttribute('data-cfasync', 'false');
+                            script.setAttribute('type', 'text/javascript');
+                            script.innerHTML = `
+                                atOptions = {
+                                    'key' : '09d25cb4a0f0d326ab324f93517d54aa',
+                                    'format' : 'iframe',
+                                    'height' : 300,
+                                    'width' : 160,
+                                    'params' : {}
+                                };
+                                document.write('<scr' + 'ipt type="text/javascript" src="//www.highperformanceformat.com/09d25cb4a0f0d326ab324f93517d54aa/invoke.js"></scr' + 'ipt>');
+                            `;
+                            document.getElementById('ad-slot-1').appendChild(script);
+                        }
+                    }
+                    // Cargar después de 2 segundos para evitar interferencias con el video
+                    setTimeout(loadAd1, 2000);
                 </script>
             </div>
             
             <div class="ad-container">
-                <script async="async" data-cfasync="false" src="//pl26053463.effectiveratecpm.com/3d9ae476db848afa0c64beda8f15e01b/invoke.js"></script>
-                <div id="container-3d9ae476db848afa0c64beda8f15e01b"></div>
+                <div id="ad-slot-2"></div>
+                <script type="text/javascript">
+                    // Función para cargar el anuncio 2 de manera controlada
+                    function loadAd2() {
+                        if (document.getElementById('ad-slot-2')) {
+                            var script = document.createElement('script');
+                            script.setAttribute('data-cfasync', 'false');
+                            script.setAttribute('async', 'async');
+                            script.setAttribute('src', '//pl26053463.effectiveratecpm.com/3d9ae476db848afa0c64beda8f15e01b/invoke.js');
+                            document.getElementById('ad-slot-2').appendChild(script);
+                            
+                            var container = document.createElement('div');
+                            container.setAttribute('id', 'container-3d9ae476db848afa0c64beda8f15e01b');
+                            document.getElementById('ad-slot-2').appendChild(container);
+                        }
+                    }
+                    // Cargar después de 3 segundos para evitar interferencias con el video
+                    setTimeout(loadAd2, 3000);
+                </script>
             </div>
         </div>
         
@@ -200,6 +262,64 @@
             const playButtonOverlay = document.getElementById('playButtonOverlay');
             const iframe = document.getElementById('liveStream');
             const originalSrc = "https://5989-38-172-130-234.ngrok-free.app/embed/video?autoplay=true&muted=false&pip=false";
+            
+            // Solución para la advertencia de ngrok
+            function bypassNgrokWarning() {
+                // Crear un iframe oculto para manejar la advertencia
+                const bypassFrame = document.createElement('iframe');
+                bypassFrame.style.width = '1px';
+                bypassFrame.style.height = '1px';
+                bypassFrame.style.position = 'absolute';
+                bypassFrame.style.top = '-100px';
+                bypassFrame.style.left = '-100px';
+                bypassFrame.style.visibility = 'hidden';
+                
+                // Establecer un User-Agent personalizado para evitar la advertencia
+                // Esto se hace creando una nueva ventana con la URL y configurando headers
+                bypassFrame.onload = function() {
+                    try {
+                        // Intentar acceder al contenido del iframe (fallará por políticas CORS)
+                        // Pero enviará la solicitud con el header modificado
+                        let doc = bypassFrame.contentDocument || bypassFrame.contentWindow.document;
+                        
+                        // Buscar y hacer clic en el botón "Visit Site"
+                        const buttons = doc.querySelectorAll('a, button');
+                        for (let i = 0; i < buttons.length; i++) {
+                            if (buttons[i].textContent && buttons[i].textContent.includes('Visit Site')) {
+                                buttons[i].click();
+                                console.log('Botón "Visit Site" encontrado y clicado');
+                                break;
+                            }
+                        }
+                    } catch (e) {
+                        console.log('Error esperado por CORS al intentar acceder al contenido del iframe');
+                    }
+                };
+                
+                // Agregar el iframe al DOM
+                bypassFrame.src = originalSrc;
+                document.body.appendChild(bypassFrame);
+                
+                // Después de un segundo, intentar nuevamente con fetch API
+                setTimeout(function() {
+                    fetch(originalSrc, {
+                        method: 'GET',
+                        headers: {
+                            'ngrok-skip-browser-warning': '1',
+                            'User-Agent': 'Custom-UserAgent-FutbolFree'
+                        },
+                        mode: 'no-cors' // Esto es importante para evitar errores CORS
+                    }).then(function() {
+                        console.log('Solicitud bypass enviada');
+                        // No podemos realmente manejar la respuesta debido a CORS
+                    }).catch(function(error) {
+                        console.log('Error en solicitud bypass:', error);
+                    });
+                }, 1000);
+            }
+            
+            // Aplicar bypass de ngrok antes de cargar el iframe principal
+            bypassNgrokWarning();
             
             // Script para buscar y hacer clic en el botón "Visit Site" de ngrok
             function createNgrokBypassScript() {
@@ -232,7 +352,7 @@
                         }
                     }
                     
-                    // Ejecutar bypass cada 500ms hasta 10 intentos
+                    // Ejecutar bypass cada 500ms hasta 20 intentos
                     let attempts = 0;
                     let bypassInterval = setInterval(() => {
                         ngrokBypass();
@@ -248,21 +368,72 @@
                 // Ocultar overlay de play
                 playButtonOverlay.style.display = 'none';
                 
-                // Agregar parámetros especiales para bypass
-                const bypassSrc = originalSrc + '&_bypass=true&t=' + Date.now();
+                // Agregar parámetros especiales para bypass y un token aleatorio para evitar caché
+                const randomToken = Math.random().toString(36).substring(2, 15);
+                const bypassSrc = originalSrc + '&_bypass=true&t=' + Date.now() + '&token=' + randomToken;
                 
-                // Establecer la URL del iframe
+                // Establecer configuraciones especiales para el iframe principal
+                iframe.setAttribute('sandbox', 'allow-forms allow-scripts allow-same-origin allow-popups');
+                
+                // Configurar el iframe con headers personalizados (esto se hace indirectamente)
+                iframe.onload = function() {
+                    // Intentar enviar un postMessage al iframe
+                    try {
+                        iframe.contentWindow.postMessage('bypassNgrok', '*');
+                    } catch (e) {
+                        console.log('Error en postMessage:', e);
+                    }
+                    
+                    // Intenta hacer click en el botón "Visit Site" si está presente
+                    setTimeout(() => {
+                        try {
+                            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                            const visitButtons = iframeDoc.querySelectorAll('a, button');
+                            for (let i = 0; i < visitButtons.length; i++) {
+                                if (visitButtons[i].textContent && 
+                                    visitButtons[i].textContent.includes('Visit Site')) {
+                                    visitButtons[i].click();
+                                    console.log('Botón de ngrok clickeado desde iframe principal');
+                                    break;
+                                }
+                            }
+                        } catch (e) {
+                            // Error CORS esperado
+                        }
+                    }, 1000);
+                };
+                
+                // Establecer la URL del iframe con un User-Agent personalizado
                 iframe.src = bypassSrc;
                 
                 // Añadir el script de bypass de ngrok
                 document.head.appendChild(createNgrokBypassScript());
                 
-                // Crear un iframe invisible que también intente acceder a la URL
-                // Esto puede ayudar con el bypass de ngrok en segundo plano
+                // Crear un iframe invisible que emule un navegador diferente
                 const hiddenFrame = document.createElement('iframe');
                 hiddenFrame.style.display = 'none';
+                hiddenFrame.sandbox = 'allow-forms allow-scripts allow-same-origin allow-popups';
                 hiddenFrame.src = bypassSrc;
                 document.body.appendChild(hiddenFrame);
+                
+                // Método adicional: crear una ventana de popup temporal que intentará acceder a la URL
+                // Muchos navegadores bloquearán esto, pero vale la pena intentarlo
+                setTimeout(() => {
+                    try {
+                        const popup = window.open(originalSrc, 'ngrokBypass', 'width=1,height=1,left=-100,top=-100');
+                        if (popup) {
+                            setTimeout(() => popup.close(), 2000);
+                        }
+                    } catch (e) {
+                        console.log('Error al abrir popup (probablemente bloqueado):', e);
+                    }
+                }, 1500);
+                
+                // Método final: usar una etiqueta <meta> para intentar forzar un User-Agent personalizado
+                const metaUA = document.createElement('meta');
+                metaUA.setAttribute('http-equiv', 'User-Agent');
+                metaUA.setAttribute('content', 'Mozilla/5.0 FutbolFree Custom Browser');
+                document.head.appendChild(metaUA);
                 
                 // Después de 3 segundos, intentar enviar mensajes al iframe
                 setTimeout(() => {
