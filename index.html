@@ -1,162 +1,185 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FUTBOLFREE</title>
+    <title>Bypass Ngrok</title>
     <style>
         body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
+            background: black;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
         
-        .logo {
+        #playButton {
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
             font-size: 24px;
-            font-weight: bold;
-            color: #ff0000;
-            margin-bottom: 20px;
+            cursor: pointer;
+            z-index: 100;
         }
         
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%;
-            height: 0;
+        #hiddenFrameContainer {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
             overflow: hidden;
-            background: #000;
-            margin: 0 auto 20px;
         }
         
-        iframe {
+        #videoContainer {
+            width: 100%;
+            height: 100%;
             position: absolute;
             top: 0;
             left: 0;
+            display: none;
+        }
+        
+        iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
         
-        .status {
-            display: inline-block;
-            background-color: #ff0000;
+        #status {
             color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
-        
-        .bypass-container {
-            display: none;
+            margin-top: 20px;
+            font-family: Arial, sans-serif;
         }
     </style>
-    <!-- Añadir cabecera para bypass de ngrok -->
-    <meta http-equiv="ngrok-skip-browser-warning" content="1">
 </head>
 <body>
-    <div class="logo">FutbolFree</div>
+    <button id="playButton">▶</button>
+    <div id="status"></div>
     
-    <!-- Iframe bypass oculto para manejar la advertencia de ngrok -->
-    <div class="bypass-container">
-        <iframe id="bypassFrame" style="width:1px;height:1px;position:absolute;top:-100px;visibility:hidden"></iframe>
+    <div id="hiddenFrameContainer">
+        <iframe id="hiddenFrame" src="about:blank"></iframe>
     </div>
     
-    <div class="video-container">
-        <iframe id="liveStream" 
-                src="about:blank" 
-                allowfullscreen="true" 
-                allow="autoplay; fullscreen" 
-                scrolling="no">
-        </iframe>
+    <div id="videoContainer">
+        <iframe id="mainFrame" src="about:blank" allowfullscreen="true" allow="autoplay; fullscreen"></iframe>
     </div>
     
-    <div>
-        <span class="status">EN VIVO</span>
-        <h3>Transmisión en Vivo</h3>
-    </div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const streamUrl = "https://5989-38-172-130-234.ngrok-free.app/embed/video?autoplay=true&muted=false&pip=false";
-            const iframe = document.getElementById('liveStream');
-            const bypassFrame = document.getElementById('bypassFrame');
+        const streamUrl = "https://5989-38-172-130-234.ngrok-free.app/embed/video?autoplay=true&muted=false&pip=false";
+        const playButton = document.getElementById("playButton");
+        const hiddenFrame = document.getElementById("hiddenFrame");
+        const mainFrame = document.getElementById("mainFrame");
+        const videoContainer = document.getElementById("videoContainer");
+        const statusElement = document.getElementById("status");
+        
+        // Función para actualizar el estado
+        function updateStatus(message) {
+            statusElement.textContent = message;
+        }
+        
+        // Función para intentar bypassear ngrok
+        function bypassNgrok() {
+            updateStatus("Intentando conectar...");
             
-            // Función para intentar bypass de ngrok
-            function bypassNgrok() {
-                // Configurar cabeceras para evitar la advertencia
-                const bypassUrl = streamUrl + "&ngrok-skip-browser-warning=1&_=" + Date.now();
+            // Cargar la URL en el iframe oculto
+            hiddenFrame.src = streamUrl + "?_bypass=true&t=" + Date.now();
+            
+            // Escuchar cuando el iframe oculto termine de cargar
+            hiddenFrame.onload = function() {
+                updateStatus("Buscando botón de acceso...");
                 
-                // Cargar primero en el iframe de bypass
-                bypassFrame.src = bypassUrl;
-                
-                // Intentar cargar en la ventana principal también
+                // Intentar hacer clic en el botón "Visit Site" en el iframe oculto
                 try {
-                    fetch(bypassUrl, {
-                        method: 'GET',
-                        headers: {
-                            'ngrok-skip-browser-warning': '1'
-                        },
-                        mode: 'no-cors'
-                    }).catch(function(error) {
-                        console.log('Solicitud bypass enviada');
-                    });
-                } catch (e) {
-                    console.log('Error en bypass:', e);
-                }
-                
-                // Esperar un momento y luego cargar el stream real con parámetros de bypass
-                setTimeout(function() {
-                    const finalUrl = streamUrl + "&ngrok-skip-browser-warning=1&_=" + Date.now();
-                    iframe.src = finalUrl;
+                    const hiddenDoc = hiddenFrame.contentDocument || hiddenFrame.contentWindow.document;
                     
-                    // Intentar presionar automáticamente el botón "Visit Site" si aparece
-                    iframe.onload = function() {
+                    // Función para buscar y hacer clic en el botón
+                    function findAndClickButton() {
                         try {
-                            // Intentar hacer clic en el botón de "Visit Site" dentro del iframe
-                            const checkForButton = setInterval(function() {
-                                try {
-                                    let iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                                    let buttons = iframeDoc.querySelectorAll('a, button');
+                            // Buscar todos los elementos que podrían ser el botón
+                            const elements = hiddenDoc.querySelectorAll("a, button");
+                            
+                            for (let i = 0; i < elements.length; i++) {
+                                const el = elements[i];
+                                
+                                // Verificar si es el botón "Visit Site"
+                                if (el.textContent && el.textContent.includes("Visit Site")) {
+                                    updateStatus("Botón encontrado, haciendo clic...");
+                                    el.click();
                                     
-                                    for (let i = 0; i < buttons.length; i++) {
-                                        if (buttons[i].textContent && buttons[i].textContent.includes('Visit Site')) {
-                                            buttons[i].click();
-                                            console.log('Botón de ngrok clickeado');
-                                            clearInterval(checkForButton);
-                                            break;
-                                        }
-                                    }
-                                } catch (e) {
-                                    // Error esperado por CORS
+                                    // Esperar un momento y luego mostrar el video
+                                    setTimeout(showMainVideo, 1000);
+                                    return true;
                                 }
-                            }, 500);
+                            }
                             
-                            // Detener después de varios intentos
-                            setTimeout(function() {
-                                clearInterval(checkForButton);
-                            }, 5000);
-                            
+                            return false;
                         } catch (e) {
-                            console.log('Error al intentar acceder al contenido del iframe:', e);
+                            console.error("Error al buscar botón:", e);
+                            return false;
                         }
-                    };
-                }, 1000);
-            }
-            
-            // Ejecutar bypass de ngrok
-            bypassNgrok();
-            
-            // Si después de 8 segundos el usuario ve la pantalla en blanco, recargar con otro método
-            setTimeout(function() {
-                if (confirm("¿No ves el video? Haz clic en Aceptar para intentar otro método")) {
-                    window.open(streamUrl, '_blank');
-                    setTimeout(function() {
-                        location.reload();
-                    }, 2000);
+                    }
+                    
+                    // Intentar varias veces
+                    let attempts = 0;
+                    const maxAttempts = 10;
+                    
+                    function attemptToClick() {
+                        if (attempts >= maxAttempts) {
+                            updateStatus("No se pudo conectar automáticamente. Intentando método alternativo...");
+                            // Intentar método alternativo
+                            showMainVideo();
+                            return;
+                        }
+                        
+                        attempts++;
+                        updateStatus(`Intento ${attempts}/${maxAttempts}...`);
+                        
+                        if (!findAndClickButton()) {
+                            // Intentar de nuevo después de un breve retraso
+                            setTimeout(attemptToClick, 500);
+                        }
+                    }
+                    
+                    // Iniciar intentos
+                    attemptToClick();
+                    
+                } catch (e) {
+                    console.error("Error en bypassNgrok:", e);
+                    // Si hay error, intenta mostrar el video de todos modos
+                    setTimeout(showMainVideo, 1000);
                 }
-            }, 8000);
+            };
+        }
+        
+        // Función para mostrar el video principal
+        function showMainVideo() {
+            updateStatus("Cargando transmisión...");
+            
+            // Ocultar botón de play
+            playButton.style.display = "none";
+            
+            // Mostrar contenedor de video
+            videoContainer.style.display = "block";
+            
+            // Cargar el iframe principal con parámetros adicionales
+            mainFrame.src = streamUrl + "&ngrok-skip-browser-warning=1&t=" + Date.now();
+            
+            // Después de 5 segundos, ocultar el mensaje de estado
+            setTimeout(function() {
+                statusElement.style.display = "none";
+            }, 5000);
+        }
+        
+        // Asignar evento de clic al botón
+        playButton.addEventListener("click", function() {
+            bypassNgrok();
         });
     </script>
 </body>
