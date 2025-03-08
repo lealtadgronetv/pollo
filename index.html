@@ -69,6 +69,36 @@
             z-index: 10;
         }
         
+        /* Overlay del botón de reproducción para dispositivos móviles */
+        .play-button-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 15;
+            cursor: pointer;
+        }
+        
+        .play-button {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(255, 0, 0, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .play-button i {
+            font-size: 40px;
+            color: white;
+        }
+        
         iframe {
             background-color: #000;
         }
@@ -305,6 +335,15 @@
             .overlay-banner-content {
                 width: 90%;
             }
+            
+            .play-button {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .play-button i {
+                font-size: 35px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -328,6 +367,15 @@
             .fullscreen-banner {
                 width: 200px;
             }
+            
+            .play-button {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .play-button i {
+                font-size: 30px;
+            }
         }
     </style>
 </head>
@@ -340,8 +388,15 @@
         <div class="main-content">
             <div class="stream-section">
                 <div class="video-container">
+                    <!-- Overlay del botón de reproducción para móviles -->
+                    <div class="play-button-overlay" id="playButtonOverlay">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    
                     <iframe id="liveStream" 
-                            src=" https://5989-38-172-130-234.ngrok-free.app/embed/video?autoplay=true&muted=false&pip=false&frameborder=0" 
+                            src="https://5989-38-172-130-234.ngrok-free.app/embed/video?autoplay=true&muted=false&pip=false&frameborder=0" 
                             allowfullscreen="true" 
                             allow="autoplay; fullscreen" 
                             scrolling="no"
@@ -489,6 +544,7 @@
             const cornerBannerBL = document.getElementById('cornerBannerBL');
             const overlayBanner = document.getElementById('overlayBanner');
             const pauseOverlay = document.getElementById('pauseOverlay');
+            const playButtonOverlay = document.getElementById('playButtonOverlay');
             
             // Botones para cerrar
             const closeBanner = document.getElementById('closeBanner');
@@ -517,6 +573,7 @@
             let pauseDetected = false;
             let lastUserActivity = Date.now();
             let userActive = true;
+            let videoStarted = false;
             
             // Configuración de tiempos e intervalos (en milisegundos)
             const config = {
@@ -542,6 +599,81 @@
                 ]
             };
             
+            // Sistema para auto-iniciar reproducción
+            function startVideoPlayback() {
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (isMobile) {
+                    // En móviles mostramos overlay con botón de play para capturar interacción del usuario
+                    playButtonOverlay.style.display = 'flex';
+                } else {
+                    // En escritorio intentamos auto-reproducir directamente
+                    attemptAutoplay();
+                }
+            }
+            
+            // Manejar clic en botón de play (para móviles principalmente)
+            playButtonOverlay.addEventListener('click', function() {
+                playButtonOverlay.style.display = 'none';
+                attemptAutoplay();
+            });
+            
+            // Función para intentar reproducir automáticamente
+            function attemptAutoplay() {
+                videoStarted = true;
+                
+                try {
+                    // Simulación de clic para activar los controles en el iframe
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    
+                    // Intentar encontrar y hacer clic en elementos comunes de reproductor
+                    const playButtons = iframeDoc.querySelectorAll('button, .ytp-large-play-button, .vjs-big-play-button, .play-button');
+                    if (playButtons.length > 0) {
+                        for (let button of playButtons) {
+                            button.click();
+                        }
+                    } else {
+                        // Si no encontramos botones, hacemos clic en el iframe
+                        const clickEvent = new MouseEvent('click', {
+                            bubbles: true,
+                            cancelable: true,
+                            view: window
+                        });
+                        
+                        iframe.contentWindow.document.body.dispatchEvent(clickEvent);
+                    }
+                    
+                    // Enviar mensaje al iframe en caso de que esté escuchando mensajes
+                    iframe.contentWindow.postMessage('play', '*');
+                    
+                } catch (e) {
+                    console.log('Autoplay fallido, intentando alternativas...');
+                    
+                    // Si falla el acceso directo, recargamos el iframe con autoplay en la URL
+                    let currentSrc = iframe.src;
+                    if (currentSrc.indexOf('autoplay=false') > -1) {
+                        iframe.src = currentSrc.replace('autoplay=false', 'autoplay=true');
+                    } else if (currentSrc.indexOf('autoplay=true') === -1) {
+                        iframe.src = currentSrc + (currentSrc.indexOf('?') > -1 ? '&' : '?') + 'autoplay=true';
+                    }
+                    
+                    // Establecemos un breve retraso y luego intentamos crear y simular un evento de clic
+                    setTimeout(function() {
+                        try {
+                            const event = new MouseEvent('click', {
+                                view: window,
+                                bubbles: true,
+                                cancelable: true
+                            });
+                            
+                            iframe.dispatchEvent(event);
+                        } catch (e) {
+                            console.log('Intento alternativo fallido');
+                        }
+                    }, 1000);
+                }
+            }
+            
             // Detectar cambios en pantalla completa
             document.addEventListener('fullscreenchange', handleFullscreenChange);
             document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
@@ -565,6 +697,22 @@
             // Inicializar
             adjustIframe();
             window.addEventListener('resize', adjustIframe);
+            
+            // Iniciar reproducción automática después de cargar la página
+            startVideoPlayback();
+            
+            // Si después de 2 segundos todavía está visible el overlay del botón,
+            // intentamos un auto-clic para dispositivos que no activan el listener
+            setTimeout(function() {
+                if (playButtonOverlay.style.display === 'flex') {
+                    let autoClickEvent = new MouseEvent('click', {
+                        view: window,
+                        bubbles: true,
+                        cancelable: true
+                    });
+                    playButtonOverlay.dispatchEvent(autoClickEvent);
+                }
+            }, 2000);
             
             // Actualizar estado de actividad del usuario
             function updateUserActivity() {
@@ -666,238 +814,248 @@
             function showFullscreenBanner() {
                 if (!isFullscreen || currentActiveBanner) return;
                 currentActiveBanner = 'fullscreen';
-                
-                // Limpiar contenido anterior
-                bannerAdContainer.innerHTML = '';
-                
-                // Crear e insertar el script dinámicamente
-                const scriptElement = document.createElement('script');
-                scriptElement.async = true;
-                scriptElement.setAttribute('data-cfasync', 'false');
-                scriptElement.src = getRandomAdScript('large');
-                bannerAdContainer.appendChild(scriptElement);
-                
-                // Crear div contenedor para el anuncio
-                const containerDiv = document.createElement('div');
-                containerDiv.id = 'container-ad-' + Math.random().toString(36).substring(2, 15);
-                bannerAdContainer.appendChild(containerDiv);
-                
-                // Mostrar el banner
-                fullscreenBanner.style.display = 'block';
-            }
-            
-            function showTopBanner() {
-                if (!isFullscreen || currentActiveBanner) return;
-                currentActiveBanner = 'top';
-                
-                topBannerContainer.innerHTML = '';
-                
-                const scriptElement = document.createElement('script');
-                scriptElement.async = true;
-                scriptElement.setAttribute('data-cfasync', 'false');
-                scriptElement.src = getRandomAdScript('medium');
-                topBannerContainer.appendChild(scriptElement);
-                
-                const containerDiv = document.createElement('div');
-                containerDiv.id = 'container-ad-' + Math.random().toString(36).substring(2, 15);
-                topBannerContainer.appendChild(containerDiv);
-                
-                topBanner.style.display = 'block';
-            }
-            
-            function showCornerBanner(position) {
-                if (!isFullscreen || currentActiveBanner) return;
-                
-                let container, banner;
-                
-                switch(position) {
-                    case 'TL':
-                        container = cornerContainerTL;
-                        banner = cornerBannerTL;
-                        currentActiveBanner = 'cornerTL';
-                        break;
-                    case 'TR':
-                        container = cornerContainerTR;
-                        banner = cornerBannerTR;
-                        currentActiveBanner = 'cornerTR';
-                        break;
-                    case 'BL':
-                        container = cornerContainerBL;
-                        banner = cornerBannerBL;
-                        currentActiveBanner = 'cornerBL';
-                        break;
-                    default:
-                        return;
-                }
-                
-                container.innerHTML = '';
-                
-                const scriptElement = document.createElement('script');
-                scriptElement.async = true;
-                scriptElement.setAttribute('data-cfasync', 'false');
-                scriptElement.src = getRandomAdScript('small');
-                container.appendChild(scriptElement);
-                
-                const containerDiv = document.createElement('div');
-                containerDiv.id = 'container-ad-' + Math.random().toString(36).substring(2, 15);
-                container.appendChild(containerDiv);
-                
-                banner.style.display = 'block';
-            }
-            
-            function showOverlayBanner() {
-                if (!isFullscreen || currentActiveBanner) return;
-                currentActiveBanner = 'overlay';
-                
-                overlayContainer.innerHTML = '';
-                
-                const scriptElement = document.createElement('script');
-                scriptElement.async = true;
-                scriptElement.setAttribute('data-cfasync', 'false');
-                scriptElement.src = getRandomAdScript('large');
-                overlayContainer.appendChild(scriptElement);
-                
-                const containerDiv = document.createElement('div');
-                containerDiv.id = 'container-ad-' + Math.random().toString(36).substring(2, 15);
-                overlayContainer.appendChild(containerDiv);
-                
-                overlayBanner.style.display = 'block';
-                
-                // Configurar ocultamiento automático
-                setTimeout(function() {
-                    if (overlayBanner.style.display === 'block') {
-                        overlayBanner.style.display = 'none';
-                        currentActiveBanner = null;
-                    }
-                }, 15000); // 15 segundos
-            }
-            
-            function showPauseOverlay() {
-                if (!isFullscreen || !pauseDetected) return;
-                
-                pauseOverlayContent.innerHTML = '';
-                
-                const scriptElement = document.createElement('script');
-                scriptElement.async = true;
-                scriptElement.setAttribute('data-cfasync', 'false');
-                scriptElement.src = getRandomAdScript('medium');
-                pauseOverlayContent.appendChild(scriptElement);
-                
-                const containerDiv = document.createElement('div');
-                containerDiv.id = 'container-ad-' + Math.random().toString(36).substring(2, 15);
-                pauseOverlayContent.appendChild(containerDiv);
-                
-                pauseOverlay.style.display = 'flex';
-            }
-            
-            // Obtener script aleatorio según el tamaño
-            function getRandomAdScript(size) {
-                const scripts = adScripts[size] || adScripts.medium;
-                return scripts[Math.floor(Math.random() * scripts.length)];
-            }
-            
-            // Configurar botones para cerrar banners
-            closeBanner.addEventListener('click', function() {
-                fullscreenBanner.style.display = 'none';
-                currentActiveBanner = null;
-            });
-            
-            closeTopBanner.addEventListener('click', function() {
-                topBanner.style.display = 'none';
-                currentActiveBanner = null;
-            });
-            
-            closeCornerTL.addEventListener('click', function() {
-                cornerBannerTL.style.display = 'none';
-                currentActiveBanner = null;
-            });
-            
-            closeCornerTR.addEventListener('click', function() {
-                cornerBannerTR.style.display = 'none';
-                currentActiveBanner = null;
-            });
-            
-            closeCornerBL.addEventListener('click', function() {
-                cornerBannerBL.style.display = 'none';
-                currentActiveBanner = null;
-            });
-            
-            closeOverlay.addEventListener('click', function() {
-                overlayBanner.style.display = 'none';
-                currentActiveBanner = null;
-            });
-            
-            // Intentar detectar pausa en el iframe (opcional, más complejo en la práctica)
-            // Este es un enfoque simplificado que intenta detectar interacciones con el iframe
-            iframe.contentWindow.addEventListener('pause', function() {
-                pauseDetected = true;
-                showPauseOverlay();
-            }, false);
-            
-            iframe.contentWindow.addEventListener('play', function() {
-                pauseDetected = false;
-                if (pauseOverlay.style.display === 'flex') {
-                    pauseOverlay.style.display = 'none';
-                }
-            }, false);
-            
-            // Iniciar manejo de anuncios con retrasos escalonados
-            setTimeout(function() {
-                // Iniciar comprobación periódica de inactividad
-                setInterval(function() {
-                    if (isFullscreen && userActive === false && !currentActiveBanner) {
-                        const random = Math.random();
-                        if (random < 0.3) {
-                            showOverlayBanner();
-                        }
-                    }
-                }, config.overlayInterval);
-                
-                // Mini banners ocasionales
-                setInterval(function() {
-                    if (isFullscreen && !currentActiveBanner) {
-                        const random = Math.random();
-                        if (random < 0.25) {
-                            const position = ['TL', 'TR', 'BL'][Math.floor(Math.random() * 3)];
-                            showCornerBanner(position);
-                            
-                            // Auto-ocultar después de un tiempo
-                            setTimeout(function() {
-                                hideAllBanners();
-                            }, 12000);
-                        }
-                    }
-                }, config.smallBannerInterval);
-                
-            }, config.initialDelay);
-            
-            // Manejar el evento cuando el usuario hace clic en el contenedor de video
-            videoContainer.addEventListener('click', function(e) {
-                // Evitar que el evento se propague al iframe si hay un banner activo
-                if (currentActiveBanner) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    hideAllBanners();
-                }
-            });
-            
-            // Mejora de experiencia: reducir frecuencia de anuncios si el usuario interactúa frecuentemente
-            let userInteractions = 0;
-            document.addEventListener('click', function() {
-                userInteractions++;
-                
-                // Si el usuario interactúa mucho, reducir la frecuencia de anuncios
-                if (userInteractions > 5) {
-                    config.rotationInterval = 60 * 1000; // Aumentar a 60 segundos
-                    config.bannerDisplayTime = 15 * 1000; // Reducir a 15 segundos
-                }
-                
-                if (userInteractions > 10) {
-                    config.rotationInterval = 90 * 1000; // Aumentar a 90 segundos
-                    config.overlayInterval = 5 * 60 * 1000; // Aumentar a 5 minutos
-                }
-            });
+             // Limpiar contenido anterior
+bannerAdContainer.innerHTML = '';
+
+// Crear e insertar nuevo script de anuncio
+const adScript = document.createElement('script');
+adScript.type = 'text/javascript';
+adScript.src = adScripts.large[Math.floor(Math.random() * adScripts.large.length)];
+adScript.async = true;
+bannerAdContainer.appendChild(adScript);
+
+// Mostrar el banner
+fullscreenBanner.style.display = 'block';
+}
+
+function showTopBanner() {
+    if (!isFullscreen || currentActiveBanner) return;
+    currentActiveBanner = 'top';
+    
+    // Limpiar contenido anterior
+    topBannerContainer.innerHTML = '';
+    
+    // Crear e insertar nuevo script de anuncio
+    const adScript = document.createElement('script');
+    adScript.type = 'text/javascript';
+    adScript.src = adScripts.medium[Math.floor(Math.random() * adScripts.medium.length)];
+    adScript.async = true;
+    topBannerContainer.appendChild(adScript);
+    
+    // Mostrar el banner
+    topBanner.style.display = 'block';
+}
+
+function showCornerBanner(position) {
+    if (!isFullscreen || currentActiveBanner) return;
+    currentActiveBanner = 'corner_' + position;
+    
+    let container;
+    let banner;
+    
+    switch(position) {
+        case 'TL':
+            container = cornerContainerTL;
+            banner = cornerBannerTL;
+            break;
+        case 'TR':
+            container = cornerContainerTR;
+            banner = cornerBannerTR;
+            break;
+        case 'BL':
+            container = cornerContainerBL;
+            banner = cornerBannerBL;
+            break;
+        default:
+            return;
+    }
+    
+    // Limpiar contenido anterior
+    container.innerHTML = '';
+    
+    // Crear e insertar nuevo script de anuncio
+    const adScript = document.createElement('script');
+    adScript.type = 'text/javascript';
+    adScript.src = adScripts.small[Math.floor(Math.random() * adScripts.small.length)];
+    adScript.async = true;
+    container.appendChild(adScript);
+    
+    // Mostrar el banner
+    banner.style.display = 'block';
+}
+
+function showOverlayBanner() {
+    if (!isFullscreen || currentActiveBanner) return;
+    currentActiveBanner = 'overlay';
+    
+    // Limpiar contenido anterior
+    overlayContainer.innerHTML = '';
+    
+    // Crear e insertar nuevo script de anuncio
+    const adScript = document.createElement('script');
+    adScript.type = 'text/javascript';
+    adScript.src = adScripts.large[Math.floor(Math.random() * adScripts.large.length)];
+    adScript.async = true;
+    overlayContainer.appendChild(adScript);
+    
+    // Mostrar el banner
+    overlayBanner.style.display = 'block';
+    
+    // Configurar cierre automático después de 15 segundos
+    setTimeout(function() {
+        overlayBanner.style.display = 'none';
+        currentActiveBanner = null;
+    }, 15000);
+}
+
+// Función para mostrar anuncio durante pausas
+function showPauseOverlay() {
+    if (!pauseDetected || currentActiveBanner) return;
+    
+    // Limpiar contenido anterior
+    pauseOverlayContent.innerHTML = '';
+    
+    // Crear e insertar nuevo script de anuncio
+    const adScript = document.createElement('script');
+    adScript.type = 'text/javascript';
+    adScript.src = adScripts.medium[Math.floor(Math.random() * adScripts.medium.length)];
+    adScript.async = true;
+    pauseOverlayContent.appendChild(adScript);
+    
+    // Mostrar el overlay
+    pauseOverlay.style.display = 'flex';
+}
+
+// Eventos para botones de cierre
+closeBanner.addEventListener('click', function() {
+    fullscreenBanner.style.display = 'none';
+    currentActiveBanner = null;
+});
+
+closeTopBanner.addEventListener('click', function() {
+    topBanner.style.display = 'none';
+    currentActiveBanner = null;
+});
+
+closeCornerTL.addEventListener('click', function() {
+    cornerBannerTL.style.display = 'none';
+    currentActiveBanner = null;
+});
+
+closeCornerTR.addEventListener('click', function() {
+    cornerBannerTR.style.display = 'none';
+    currentActiveBanner = null;
+});
+
+closeCornerBL.addEventListener('click', function() {
+    cornerBannerBL.style.display = 'none';
+    currentActiveBanner = null;
+});
+
+closeOverlay.addEventListener('click', function() {
+    overlayBanner.style.display = 'none';
+    currentActiveBanner = null;
+});
+
+// Función para simular clic en el botón de reproducción (mejorada para móviles)
+function simulatePlayButtonClick() {
+    // Ocultar el overlay del botón
+    playButtonOverlay.style.display = 'none';
+    
+    // Solución específica para dispositivos móviles
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        // Simular múltiples formas de interacción para asegurar reproducción
+        
+        // 1. Simular tap en el iframe
+        const tapEvent = new TouchEvent('touchstart', {
+            bubbles: true,
+            cancelable: true,
+            view: window
         });
-    </script>
+        iframe.dispatchEvent(tapEvent);
+        
+        // 2. Intentar interactuar directamente con el documento del iframe
+        try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            // Buscar y hacer clic en elementos de reproducción comunes
+            const playElements = iframeDoc.querySelectorAll('video, .vjs-big-play-button, .ytp-large-play-button, button, [role="button"]');
+            
+            if (playElements.length > 0) {
+                for (let el of playElements) {
+                    try {
+                        // Simular tap
+                        el.dispatchEvent(new TouchEvent('touchstart', { bubbles: true }));
+                        // Simular clic
+                        el.click();
+                    } catch (e) {
+                        console.log('Error al interactuar con elemento:', e);
+                    }
+                }
+            }
+        } catch (e) {
+            console.log('Error al acceder al iframe:', e);
+        }
+        
+        // 3. Intentar enviar mensaje postMessage al iframe
+        try {
+            iframe.contentWindow.postMessage('play', '*');
+            iframe.contentWindow.postMessage({ action: 'play' }, '*');
+        } catch (e) {
+            console.log('Error al enviar mensaje:', e);
+        }
+        
+        // 4. Última opción: recargar iframe con parámetros de reproducción automática forzada
+        setTimeout(function() {
+            let currentSrc = iframe.src;
+            
+            // Asegurarnos de que tenemos los parámetros correctos
+            if (currentSrc.indexOf('autoplay=true') === -1) {
+                if (currentSrc.indexOf('?') > -1) {
+                    iframe.src = currentSrc + '&autoplay=true&muted=false&playsinline=true';
+                } else {
+                    iframe.src = currentSrc + '?autoplay=true&muted=false&playsinline=true';
+                }
+            }
+        }, 500);
+    } else {
+        // Para escritorio usamos el método original
+        attemptAutoplay();
+    }
+    
+    // Marcar como reproducido
+    videoStarted = true;
+}
+
+// Ejecutar la simulación de clic automáticamente después de cargar
+setTimeout(simulatePlayButtonClick, 1000);
+
+// Para asegurarnos que funciona en todos los dispositivos, intentamos múltiples veces
+let autoClickAttempts = 0;
+const maxAutoClickAttempts = 5;
+
+function attemptAutoClick() {
+    if (autoClickAttempts < maxAutoClickAttempts) {
+        simulatePlayButtonClick();
+        autoClickAttempts++;
+        setTimeout(attemptAutoClick, 2000); // Intentar cada 2 segundos
+    }
+}
+
+// Iniciar intentos automáticos
+attemptAutoClick();
+
+// También intentar cuando el usuario toca cualquier parte de la pantalla
+document.addEventListener('touchstart', function() {
+    if (playButtonOverlay.style.display !== 'none') {
+        simulatePlayButtonClick();
+    }
+}, { once: true });
+
+});
+</script>
 </body>
-</html>
+</html>   
+            
