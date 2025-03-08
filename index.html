@@ -46,16 +46,17 @@
             gap: 20px;
         }
         
-        /* Contenedor de video mejorado */
+        /* Contenedor de video mejorado para Owncast */
         .video-container {
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* Proporción 16:9 estándar para videos */
+            padding-bottom: 56.25%; /* Proporción 16:9 */
             height: 0;
             overflow: hidden;
             background: #000;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            margin: 0 auto;
         }
         
         #liveStream {
@@ -65,6 +66,12 @@
             width: 100%;
             height: 100%;
             border: none;
+            z-index: 10; /* Asegurar que esté por encima */
+        }
+        
+        /* Ocultar elementos no deseados de Owncast */
+        iframe {
+            background-color: #000;
         }
         
         .video-info {
@@ -125,7 +132,7 @@
             color: #888;
         }
         
-        /* Sistema de breakpoints mejorado para mejor responsividad */
+        /* Sistema de breakpoints mejorado */
         @media (max-width: 1200px) {
             .container {
                 max-width: 100%;
@@ -149,7 +156,7 @@
             }
             
             .video-container {
-                padding-bottom: 56.25%; /* Mantiene proporción 16:9 incluso en móvil */
+                padding-bottom: 56.25%; /* Mantener proporción 16:9 */
             }
             
             .ad-sidebar {
@@ -192,7 +199,15 @@
         <div class="main-content">
             <div class="stream-section">
                 <div class="video-container">
-                    <iframe id="liveStream" src="https://3878-38-172-130-234.ngrok-free.app?embed=true&autoplay=1" allowfullscreen allow="autoplay"></iframe>
+                    <!-- Modificado para mejor integración con Owncast -->
+                    <iframe id="liveStream" 
+                            src="https://3878-38-172-130-234.ngrok-free.app/embed/video?autoplay=true&muted=false&pip=false&frameborder=0" 
+                            allowfullscreen="true" 
+                            allow="autoplay; fullscreen" 
+                            scrolling="no"
+                            frameborder="0"
+                            style="background: #000;">
+                    </iframe>
                 </div>
                 
                 <div class="video-info">
@@ -269,5 +284,27 @@
             <p>&copy; 2025 FutbolFree - Todos los derechos reservados</p>
         </footer>
     </div>
+
+    <!-- Script para asegurar que el iframe se ajuste correctamente -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Asegurar que el iframe ocupe todo el espacio del contenedor
+            const videoContainer = document.querySelector('.video-container');
+            const iframe = document.getElementById('liveStream');
+            
+            // Ajustar tamaño en carga y en resize
+            function adjustIframe() {
+                const containerWidth = videoContainer.offsetWidth;
+                const containerHeight = (containerWidth * 9) / 16; // Mantener proporción 16:9
+                
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+            }
+            
+            // Ejecutar al cargar y cuando cambie el tamaño de la ventana
+            adjustIframe();
+            window.addEventListener('resize', adjustIframe);
+        });
+    </script>
 </body>
 </html>
