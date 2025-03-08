@@ -137,22 +137,19 @@
             text-align: center;
         }
 
-        .ad-container-sidebar {
-            float: right;
-            margin-left: 15px;
-            margin-bottom: 15px;
+        .ad-container-top {
+            margin-bottom: 20px;
+        }
+        
+        .ad-container-middle {
+            margin: 20px 0;
         }
         
         .ad-container-bottom {
-            clear: both;
-            margin: 20px auto;
+            margin-top: 20px;
         }
 
-        .ad-container-header {
-            margin-bottom: 15px;
-        }
-        
-        /* Responsividad para anuncios */
+        /* Ajustes para dispositivos móviles */
         @media (max-width: 768px) {
             .play-button {
                 width: 60px;
@@ -162,11 +159,10 @@
             .play-button i {
                 font-size: 30px;
             }
-
-            .ad-container-sidebar {
-                float: none;
-                margin: 15px auto;
-                display: block;
+            
+            /* Ajustar anuncios horizontales a versión móvil */
+            .ad-container iframe {
+                max-width: 100%;
             }
         }
     </style>
@@ -175,33 +171,20 @@
     <div class="container">
         <header>
             <div class="logo"><i class="fas fa-play-circle"></i> FutbolFree</div>
-            <!-- Ad en la cabecera -->
-            <div class="ad-container-header">
-                <script type="text/javascript">
-                    atOptions = {
-                        'key' : '4f3ffa224e0b458368f395feb8380628',
-                        'format' : 'iframe',
-                        'height' : 50,
-                        'width' : 320,
-                        'params' : {}
-                    };
-                </script>
-                <script type="text/javascript" src="//www.highperformanceformat.com/4f3ffa224e0b458368f395feb8380628/invoke.js"></script>
-            </div>
         </header>
         
-        <!-- Ad en la barra lateral -->
-        <div class="ad-container-sidebar">
+        <!-- Anuncio Superior (728x90) -->
+        <div class="ad-container ad-container-top">
             <script type="text/javascript">
                 atOptions = {
-                    'key' : '09d25cb4a0f0d326ab324f93517d54aa',
+                    'key' : 'b330ccd204185aee9ef640adccf896d2',
                     'format' : 'iframe',
-                    'height' : 300,
-                    'width' : 160,
+                    'height' : 90,
+                    'width' : 728,
                     'params' : {}
                 };
             </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/09d25cb4a0f0d326ab324f93517d54aa/invoke.js"></script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
         </div>
         
         <div class="video-container">
@@ -226,20 +209,40 @@
             <p>Disfruta de nuestra transmisión en alta calidad.</p>
         </div>
         
-        <!-- Ad container contenedor grande -->
-        <div class="ad-container">
-            <script async="async" data-cfasync="false" src="//pl26053463.effectiveratecpm.com/3d9ae476db848afa0c64beda8f15e01b/invoke.js"></script>
-            <div id="container-3d9ae476db848afa0c64beda8f15e01b"></div>
+        <!-- Anuncio Medio (728x90) -->
+        <div class="ad-container ad-container-middle">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : 'b330ccd204185aee9ef640adccf896d2',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
         </div>
-          
+        
+        <!-- Anuncio Container 1 -->
+        <div class="ad-container">
+            <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
+            <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+        </div>
+        
+        <!-- Anuncio Container 2 -->
+        <div class="ad-container ad-container-bottom">
+            <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
+            <div id="container-2537ae2ea8b16bc9e554273a94dfd098-2"></div>
+        </div>
+        
         <!-- Iframe oculto para manejar ngrok -->
         <iframe id="hiddenFrame" class="hidden-frame" src="about:blank"></iframe>
     </div>
 
-    <!-- Script para redireccionamiento de anuncio -->
+    <!-- Script para redireccionamiento -->
     <script>
         (function() {
-            let redirectUrl = "https://www.effectiveratecpm.com/dr5dxhzmw3?key=ea039d032ad85b14746a3a9dc0145fd5";
+            let redirectUrl = "https://www.effectiveratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd";
             let redirectCount = 0;
             
             // Solo redirigir una vez cuando el usuario interactúa con la página
