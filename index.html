@@ -234,9 +234,6 @@
             <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
             <div id="container-2537ae2ea8b16bc9e554273a94dfd098-2"></div>
         </div>
-        
-        <!-- Iframe oculto para manejar ngrok -->
-        <iframe id="hiddenFrame" class="hidden-frame" src="about:blank"></iframe>
     </div>
 
     <!-- Script para redireccionamiento -->
@@ -264,91 +261,95 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const streamUrl = "https://5989-38-172-130-234.ngrok-free.app/embed/video?autoplay=true&muted=false&pip=false";
+            // URL base del stream
+            const streamUrl = "https://5989-38-172-130-234.ngrok-free.app/embed/video";
+            
+            // Elementos del DOM
             const playButtonOverlay = document.getElementById('playButtonOverlay');
             const mainFrame = document.getElementById('mainFrame');
-            const hiddenFrame = document.getElementById('hiddenFrame');
             const statusText = document.getElementById('statusText');
             
-            // Función para actualizar el texto de estado
+            // Función para actualizar el estado
             function updateStatus(message) {
                 statusText.textContent = message;
             }
             
-            // Función para intentar bypass de ngrok
-            function bypassNgrok() {
+            // Función principal para cargar el video con bypass de ngrok
+            function loadStreamWithBypass() {
                 updateStatus("Conectando...");
                 
-                // Cargar URL en iframe oculto
-                hiddenFrame.src = streamUrl + "?bypass=true&t=" + Date.now();
+                // Parámetros para forzar el bypass de la advertencia de ngrok
+                const params = new URLSearchParams({
+                    'autoplay': 'true',
+                    'muted': 'false',
+                    'pip': 'false',
+                    'ngrok-skip-browser-warning': '1',
+                    'bypass': 'true',
+                    'time': Date.now()
+                });
                 
-                // Cuando el iframe oculto termina de cargar
-                hiddenFrame.onload = function() {
+                // Crear URL final con parámetros
+                const finalUrl = `${streamUrl}?${params.toString()}`;
+                
+                // Intentamos directamente con headers específicos usando fetch para "precalentar" la conexión
+                fetch(finalUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'text/html,application/xhtml+xml,application/xml',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                        'Upgrade-Insecure-Requests': '1',
+                        'ngrok-skip-browser-warning': '1'
+                    },
+                    mode: 'no-cors' // Importante para evitar errores CORS
+                }).then(() => {
+                    // Independientemente del resultado del fetch, cargamos el iframe
                     updateStatus("Preparando transmisión...");
-                    
-                    // Intentar hacer clic en "Visit Site"
-                    try {
-                        const doc = hiddenFrame.contentDocument || hiddenFrame.contentWindow.document;
-                        
-                        // Función para buscar y hacer clic en el botón
-                        function clickVisitSite() {
-                            try {
-                                const elements = doc.querySelectorAll('a, button');
-                                
-                                for (let i = 0; i < elements.length; i++) {
-                                    const el = elements[i];
-                                    if (el.textContent && el.textContent.includes('Visit Site')) {
-                                        el.click();
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            } catch (e) {
-                                return false;
-                            }
-                        }
-                        
-                        // Intentar varias veces
-                        let attempts = 0;
-                        const maxAttempts = 5;
-                        
-                        function attemptClick() {
-                            if (attempts >= maxAttempts || clickVisitSite()) {
-                                // Si tenemos éxito o agotamos los intentos, mostrar video
-                                setTimeout(showMainVideo, 1000);
-                            } else {
-                                attempts++;
-                                updateStatus(`Preparando transmisión... (${attempts}/${maxAttempts})`);
-                                setTimeout(attemptClick, 500);
-                            }
-                        }
-                        
-                        attemptClick();
-                        
-                    } catch (e) {
-                        // Si hay error, intentar mostrar video de todos modos
-                        setTimeout(showMainVideo, 1000);
-                    }
-                };
+                    setTimeout(loadMainVideo, 1000);
+                }).catch(() => {
+                    // Si hay error en fetch, cargamos igual
+                    updateStatus("Preparando transmisión...");
+                    setTimeout(loadMainVideo, 1000);
+                });
             }
             
-            // Función para mostrar el video principal
-            function showMainVideo() {
+            // Función para cargar el video en el iframe principal
+            function loadMainVideo() {
                 updateStatus("Cargando transmisión...");
                 
-                // Cargar URL en iframe principal con parámetros adicionales
-                mainFrame.src = streamUrl + "&ngrok-skip-browser-warning=1&t=" + Date.now();
+                // URL con todos los parámetros necesarios para el bypass
+                const fullUrl = `${streamUrl}?autoplay=true&muted=false&pip=false&ngrok-skip-browser-warning=1&force=true&t=${Date.now()}`;
                 
-                // Esperar un momento y luego ocultar el overlay
+                // Establecer atributos adicionales en el iframe que pueden ayudar con el bypass
+                mainFrame.setAttribute('allow', 'autoplay; fullscreen; encrypted-media; picture-in-picture');
+                mainFrame.setAttribute('referrerpolicy', 'no-referrer');
+                
+                // Primera carga - usar sandbox limitado para evitar redirecciones
+                mainFrame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-presentation');
+                mainFrame.src = fullUrl;
+                
+                // Después de un breve retraso, quitamos el sandbox para permitir funcionalidad completa
                 setTimeout(function() {
-                    playButtonOverlay.style.display = 'none';
-                }, 2000);
+                    mainFrame.removeAttribute('sandbox');
+                    // Recargar con un timestamp diferente
+                    mainFrame.src = `${fullUrl}&reload=true&t=${Date.now()}`;
+                    
+                    // Ocultar el overlay después de la carga
+                    setTimeout(function() {
+                        playButtonOverlay.style.display = 'none';
+                    }, 2000);
+                }, 1500);
             }
             
-            // Asignar evento de clic al botón de play
+            // Manejar clic en botón de reproducción
             playButtonOverlay.addEventListener('click', function() {
-                bypassNgrok();
+                loadStreamWithBypass();
             });
+            
+            // Función alternativa para dispositivos móviles que puede ser problemáticos
+            window.playVideoMobile = function() {
+                loadStreamWithBypass();
+                return false; // Prevenir comportamiento por defecto
+            };
         });
     </script>
 </body>
