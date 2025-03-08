@@ -4,8 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transmisión en Vivo</title>
+    <style>
+        body {
+            margin: 0;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        iframe {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+        }
+    </style>
     <script>
-        // Redirigir con el header necesario para evitar el aviso de Ngrok
         function skipNgrokWarning() {
             fetch("https://5989-38-172-130-234.ngrok-free.app", {
                 headers: {
@@ -15,7 +29,7 @@
             })
             .then(response => {
                 if (response.ok) {
-                    window.location.href = "https://5989-38-172-130-234.ngrok-free.app/";
+                    document.getElementById("streamPlayer").src = "https://5989-38-172-130-234.ngrok-free.app/embed/video";
                 }
             })
             .catch(error => console.error("Error al redirigir:", error));
@@ -23,6 +37,6 @@
     </script>
 </head>
 <body onload="skipNgrokWarning()">
-    <h1>Redirigiendo a la transmisión...</h1>
+    <iframe id="streamPlayer" src="" allowfullscreen></iframe>
 </body>
 </html>
