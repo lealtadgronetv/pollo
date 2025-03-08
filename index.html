@@ -20,7 +20,7 @@
         
         .container {
             width: 100%;
-            max-width: 1600px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 10px;
         }
@@ -40,12 +40,6 @@
             color: #ff0000;
         }
         
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 20px;
-        }
-        
         .video-container {
             position: relative;
             width: 100%;
@@ -58,7 +52,7 @@
             margin: 0 auto;
         }
         
-        #liveStream {
+        iframe {
             position: absolute;
             top: 0;
             left: 0;
@@ -66,6 +60,7 @@
             height: 100%;
             border: none;
             z-index: 10;
+            background-color: #000;
         }
         
         .play-button-overlay {
@@ -97,20 +92,11 @@
             color: white;
         }
         
-        iframe {
-            background-color: #000;
-        }
-        
         .video-info {
             margin-top: 15px;
             padding: 15px;
             background-color: #1e1e1e;
             border-radius: 8px;
-        }
-        
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
         }
         
         .status {
@@ -124,31 +110,17 @@
         }
         
         .ad-sidebar {
+            margin-top: 20px;
             display: flex;
-            flex-direction: column;
-            gap: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
         }
         
         .ad-container {
             background-color: #1e1e1e;
             border-radius: 8px;
             overflow: hidden;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .ad-label {
-            background-color: #333;
-            color: #999;
-            font-size: 12px;
-            padding: 4px;
-        }
-        
-        .ad-content {
-            min-height: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         
         footer {
@@ -159,208 +131,7 @@
             color: #888;
         }
         
-        .fullscreen-banner {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 300px;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            display: none;
-            padding: 10px;
-            text-align: center;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        
-        .fullscreen-banner-content {
-            position: relative;
-        }
-        
-        .close-banner {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-        }
-        
-        .fullscreen-top-banner {
-            position: fixed;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 468px;
-            height: 60px;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            display: none;
-            padding: 5px;
-            text-align: center;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        
-        .corner-banner {
-            position: fixed;
-            width: 160px;
-            height: 160px;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            display: none;
-            padding: 5px;
-            text-align: center;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        
-        .corner-banner.top-left {
-            top: 15px;
-            left: 15px;
-        }
-        
-        .corner-banner.top-right {
-            top: 15px;
-            right: 15px;
-        }
-        
-        .corner-banner.bottom-left {
-            bottom: 15px;
-            left: 15px;
-        }
-        
-        .overlay-banner {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            display: none;
-            padding: 5px 0;
-            text-align: center;
-        }
-        
-        .overlay-banner-content {
-            max-width: 728px;
-            height: 100%;
-            margin: 0 auto;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .pause-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 11;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .pause-overlay-content {
-            width: 300px;
-            height: 250px;
-            position: relative;
-        }
-        
-        @media (max-width: 1200px) {
-            .container {
-                max-width: 100%;
-                padding: 10px;
-            }
-        }
-        
-        @media (max-width: 992px) {
-            .main-content {
-                grid-template-columns: 1fr 250px;
-            }
-            
-            h1 {
-                font-size: 22px;
-            }
-        }
-        
         @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .video-container {
-                padding-bottom: 56.25%;
-            }
-            
-            .ad-sidebar {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                gap: 15px;
-            }
-            
-            .ad-container {
-                margin-bottom: 0;
-            }
-            
-            .fullscreen-banner {
-                width: 250px;
-                bottom: 15px;
-                right: 15px;
-            }
-            
-            .fullscreen-top-banner,
-            .overlay-banner-content {
-                width: 90%;
-            }
-            
-            .play-button {
-                width: 70px;
-                height: 70px;
-            }
-            
-            .play-button i {
-                font-size: 35px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .logo {
-                font-size: 20px;
-            }
-            
-            h1 {
-                font-size: 18px;
-            }
-            
-            .video-info {
-                padding: 10px;
-            }
-            
-            .status {
-                font-size: 12px;
-                padding: 4px 8px;
-            }
-            
-            .fullscreen-banner {
-                width: 200px;
-            }
-            
             .play-button {
                 width: 60px;
                 height: 60px;
@@ -378,679 +149,167 @@
             <div class="logo"><i class="fas fa-play-circle"></i> FutbolFree</div>
         </header>
         
-        <div class="main-content">
-            <div class="stream-section">
-                <div class="video-container">
-                    <!-- Overlay del botón de reproducción para móviles -->
-                    <div class="play-button-overlay" id="playButtonOverlay">
-                        <div class="play-button">
-                            <i class="fas fa-play"></i>
-                        </div>
-                    </div>
-                    
-                    <iframe id="liveStream" 
-                            src="https://5989-38-172-130-234.ngrok-free.app/embed/video?autoplay=true&muted=false&pip=false" 
-                            allowfullscreen="true" 
-                            allow="autoplay; fullscreen" 
-                            scrolling="no"
-                            frameborder="0"
-                            style="background: #000;">
-                    </iframe>
-                    
-                    <!-- Overlay que aparece durante pausas -->
-                    <div class="pause-overlay" id="pauseOverlay">
-                        <div class="pause-overlay-content" id="pauseOverlayContent"></div>
-                    </div>
-                </div>
-                
-                <div class="video-info">
-                    <span class="status"><i class="fas fa-circle"></i> EN VIVO</span>
-                    <h1>Transmisión en Vivo</h1>
-                    <p>Disfruta de nuestra transmisión en vivo en alta calidad. No te pierdas ningún detalle y comparte con tus amigos.</p>
+        <div class="video-container">
+            <div class="play-button-overlay" id="playButtonOverlay">
+                <div class="play-button">
+                    <i class="fas fa-play"></i>
                 </div>
             </div>
             
-            <div class="ad-sidebar">
-                <!-- Anuncio 1 -->
-                <div class="ad-container">
-                    <div class="ad-label">Publicidad</div>
-                    <div class="ad-content">
-                        <script type="text/javascript">
-                            atOptions = {
-                                'key' : '09d25cb4a0f0d326ab324f93517d54aa',
-                                'format' : 'iframe',
-                                'height' : 300,
-                                'width' : 160,
-                                'params' : {}
-                            };
-                            document.write('<scr' + 'ipt type="text/javascript" src="//www.highperformanceformat.com/09d25cb4a0f0d326ab324f93517d54aa/invoke.js"></scr' + 'ipt>');
-                        </script>
-                    </div>
-                </div>
-                
-                <!-- Anuncio 2 -->
-                <div class="ad-container">
-                    <div class="ad-label">Publicidad</div>
-                    <div class="ad-content">
-                        <script async="async" data-cfasync="false" src="//pl26053463.effectiveratecpm.com/3d9ae476db848afa0c64beda8f15e01b/invoke.js"></script>
-                        <div id="container-3d9ae476db848afa0c64beda8f15e01b"></div>
-                    </div>
-                </div>
-                
-                <!-- Anuncio 3 -->
-                <div class="ad-container">
-                    <div class="ad-label">Publicidad</div>
-                    <div class="ad-content">
-                        <script type="text/javascript">
-                            atOptions = {
-                                'key' : '07ea7873843b6301d8dd65dd9190f679',
-                                'format' : 'iframe',
-                                'height' : 250,
-                                'width' : 300,
-                                'params' : {}
-                            };
-                            document.write('<scr' + 'ipt type="text/javascript" src="//pl26053469.effectiveratecpm.com/07ea7873843b6301d8dd65dd9190f679/invoke.js"></scr' + 'ipt>');
-                        </script>
-                    </div>
-                </div>
-                
-                <!-- Anuncio 4 -->
-                <div class="ad-container">
-                    <div class="ad-label">Publicidad</div>
-                    <div class="ad-content">
-                        <script type="text/javascript">
-                            atOptions = {
-                                'key' : '4a9850fd4fffa988a63d67a73cba7f74',
-                                'format' : 'iframe',
-                                'height' : 250,
-                                'width' : 300,
-                                'params' : {}
-                            };
-                            document.write('<scr' + 'ipt type="text/javascript" src="//pl26053452.effectiveratecpm.com/4a9850fd4fffa988a63d67a73cba7f74/invoke.js"></scr' + 'ipt>');
-                        </script>
-                    </div>
-                </div>
+            <iframe id="liveStream" 
+                    src="about:blank" 
+                    allowfullscreen="true" 
+                    allow="autoplay; fullscreen" 
+                    scrolling="no">
+            </iframe>
+        </div>
+        
+        <div class="video-info">
+            <span class="status"><i class="fas fa-circle"></i> EN VIVO</span>
+            <h1>Transmisión en Vivo</h1>
+            <p>Disfruta de nuestra transmisión en vivo en alta calidad.</p>
+        </div>
+        
+        <div class="ad-sidebar">
+            <div class="ad-container">
+                <script type="text/javascript">
+                    atOptions = {
+                        'key' : '09d25cb4a0f0d326ab324f93517d54aa',
+                        'format' : 'iframe',
+                        'height' : 300,
+                        'width' : 160,
+                        'params' : {}
+                    };
+                    document.write('<scr' + 'ipt type="text/javascript" src="//www.highperformanceformat.com/09d25cb4a0f0d326ab324f93517d54aa/invoke.js"></scr' + 'ipt>');
+                </script>
+            </div>
+            
+            <div class="ad-container">
+                <script async="async" data-cfasync="false" src="//pl26053463.effectiveratecpm.com/3d9ae476db848afa0c64beda8f15e01b/invoke.js"></script>
+                <div id="container-3d9ae476db848afa0c64beda8f15e01b"></div>
             </div>
         </div>
         
         <footer>
-            <p>&copy; 2025 FutbolFree - Todos los derechos reservados</p>
+            <p>&copy; 2025 FutbolFree</p>
         </footer>
-    </div>
-
-    <!-- Banner en esquina inferior derecha pantalla completa -->
-    <div class="fullscreen-banner" id="fullscreenBanner">
-        <div class="fullscreen-banner-content">
-            <button class="close-banner" id="closeBanner">✕</button>
-            <div id="bannerAdContainer"></div>
-        </div>
-    </div>
-    
-    <!-- Banner superior en modo pantalla completa -->
-    <div class="fullscreen-top-banner" id="topBanner">
-        <div class="fullscreen-banner-content">
-            <button class="close-banner" id="closeTopBanner">✕</button>
-            <div id="topBannerContainer"></div>
-        </div>
-    </div>
-    
-    <!-- Mini banner esquina superior izquierda -->
-    <div class="corner-banner top-left" id="cornerBannerTL">
-        <div class="fullscreen-banner-content">
-            <button class="close-banner" id="closeCornerTL">✕</button>
-            <div id="cornerContainerTL"></div>
-        </div>
-    </div>
-    
-    <!-- Mini banner esquina superior derecha -->
-    <div class="corner-banner top-right" id="cornerBannerTR">
-        <div class="fullscreen-banner-content">
-            <button class="close-banner" id="closeCornerTR">✕</button>
-            <div id="cornerContainerTR"></div>
-        </div>
-    </div>
-    
-    <!-- Mini banner esquina inferior izquierda -->
-    <div class="corner-banner bottom-left" id="cornerBannerBL">
-        <div class="fullscreen-banner-content">
-            <button class="close-banner" id="closeCornerBL">✕</button>
-            <div id="cornerContainerBL"></div>
-        </div>
-    </div>
-    
-    <!-- Banner overlay en parte inferior -->
-    <div class="overlay-banner" id="overlayBanner">
-        <div class="overlay-banner-content">
-            <button class="close-banner" id="closeOverlay">✕</button>
-            <div id="overlayContainer"></div>
-        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Referencias a elementos del DOM
-            const fullscreenBanner = document.getElementById('fullscreenBanner');
-            const topBanner = document.getElementById('topBanner');
-            const cornerBannerTL = document.getElementById('cornerBannerTL');
-            const cornerBannerTR = document.getElementById('cornerBannerTR');
-            const cornerBannerBL = document.getElementById('cornerBannerBL');
-            const overlayBanner = document.getElementById('overlayBanner');
-            const pauseOverlay = document.getElementById('pauseOverlay');
             const playButtonOverlay = document.getElementById('playButtonOverlay');
+            const iframe = document.getElementById('liveStream');
+            const originalSrc = "https://5989-38-172-130-234.ngrok-free.app/embed/video?autoplay=true&muted=false&pip=false";
             
-            // Botones para cerrar
-            const closeBanner = document.getElementById('closeBanner');
-            const closeTopBanner = document.getElementById('closeTopBanner');
-            const closeCornerTL = document.getElementById('closeCornerTL');
-            const closeCornerTR = document.getElementById('closeCornerTR');
-            const closeCornerBL = document.getElementById('closeCornerBL');
-            const closeOverlay = document.getElementById('closeOverlay');
-            
-            // Contenedores para anuncios
-            const bannerAdContainer = document.getElementById('bannerAdContainer');
-            const topBannerContainer = document.getElementById('topBannerContainer');
-            const cornerContainerTL = document.getElementById('cornerContainerTL');
-            const cornerContainerTR = document.getElementById('cornerContainerTR');
-            const cornerContainerBL = document.getElementById('cornerContainerBL');
-            const overlayContainer = document.getElementById('overlayContainer');
-            const pauseOverlayContent = document.getElementById('pauseOverlayContent');
-            
-            const videoContainer = document.querySelector('.video-container');
-            let iframe = document.getElementById('liveStream');
-            
-            // Variables de estado
-            let isFullscreen = false;
-            let bannerRotationTimer;
-            let currentActiveBanner = null;
-            let pauseDetected = false;
-            let lastUserActivity = Date.now();
-            let userActive = true;
-            let videoStarted = false;
-            
-            // Configuración de tiempos e intervalos (en milisegundos)
-            const config = {
-                initialDelay: 15 * 1000,          // 15 segundos antes del primer anuncio
-                rotationInterval: 45 * 1000,      // Rotación de anuncios cada 45 segundos
-                bannerDisplayTime: 20 * 1000,     // Cada banner se muestra 20 segundos
-                inactivityThreshold: 10 * 1000,   // Tiempo para considerar inactividad: 10 segundos
-                smallBannerInterval: 90 * 1000,   // Mostrar mini banners cada 90 segundos
-                overlayInterval: 3 * 60 * 1000    // Mostrar overlay cada 3 minutos
-            };
-            
-            // Colección de scripts de anuncios
-            const adScripts = {
-                large: [
-                    '//pl26053463.effectiveratecpm.com/3d9ae476db848afa0c64beda8f15e01b/invoke.js',
-                    '//pl26053452.effectiveratecpm.com/4a9850fd4fffa988a63d67a73cba7f74/invoke.js'
-                ],
-                medium: [
-                    '//pl26053469.effectiveratecpm.com/07ea7873843b6301d8dd65dd9190f679/invoke.js'
-                ],
-                small: [
-                    '//www.highperformanceformat.com/09d25cb4a0f0d326ab324f93517d54aa/invoke.js'
-                ]
-            };
-            
-            // Sistema para auto-iniciar reproducción
-            function startVideoPlayback() {
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                
-                if (isMobile) {
-                    // En móviles mostramos overlay con botón de play para capturar interacción del usuario
-                    playButtonOverlay.style.display = 'flex';
-                } else {
-                    // En escritorio intentamos auto-reproducir directamente
-                    attemptAutoplay();
-                }
+            // Script para buscar y hacer clic en el botón "Visit Site" de ngrok
+            function createNgrokBypassScript() {
+                const script = document.createElement('script');
+                script.textContent = `
+                    function ngrokBypass() {
+                        try {
+                            // Acceder a todos los iframes y buscar el botón
+                            document.querySelectorAll('iframe').forEach(frame => {
+                                try {
+                                    const doc = frame.contentDocument || frame.contentWindow.document;
+                                    // Buscar botón de ngrok por texto o clases
+                                    const buttons = doc.querySelectorAll('button, a, [role="button"], .btn, .btn-primary');
+                                    
+                                    buttons.forEach(button => {
+                                        if (button.textContent && 
+                                            (button.textContent.includes('Visit Site') || 
+                                             button.textContent.includes('Continue') ||
+                                             button.className.includes('btn-primary'))) {
+                                            console.log('Botón de ngrok encontrado, haciendo clic');
+                                            button.click();
+                                        }
+                                    });
+                                } catch (e) {
+                                    // Error de cross-origin es esperado
+                                }
+                            });
+                        } catch (e) {
+                            console.log('Error en bypass:', e);
+                        }
+                    }
+                    
+                    // Ejecutar bypass cada 500ms hasta 10 intentos
+                    let attempts = 0;
+                    let bypassInterval = setInterval(() => {
+                        ngrokBypass();
+                        attempts++;
+                        if (attempts >= 20) clearInterval(bypassInterval);
+                    }, 500);
+                `;
+                return script;
             }
             
-            // Manejar clic en botón de play (para móviles principalmente)
-            playButtonOverlay.addEventListener('click', function() {
-                simulatePlayButtonClick();
-            });
-            
-            // Función para simular el clic en el botón de reproducción
-            function simulatePlayButtonClick() {
-                // Ocultar el overlay del botón
+            // Iniciar reproductor con bypass de ngrok
+            function startPlayer() {
+                // Ocultar overlay de play
                 playButtonOverlay.style.display = 'none';
                 
-                // Detectar si estamos en dispositivo móvil
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                // Agregar parámetros especiales para bypass
+                const bypassSrc = originalSrc + '&_bypass=true&t=' + Date.now();
                 
-                // Solución para bypasear la advertencia de ngrok
-                if (isMobile || true) { // Aplicar en todos los dispositivos
-                    // Cambiar la URL del iframe para usar una redirección directa
-                    // en lugar de la URL de ngrok que muestra la advertencia
-                    
-                    const originalSrc = iframe.src;
-                    
-                    // Crear un iframe temporal oculto
-                    const tempFrame = document.createElement('iframe');
-                    tempFrame.style.display = 'none';
-                    document.body.appendChild(tempFrame);
-                    
-                    // Reemplazar el iframe original con uno nuevo que tenga la misma URL pero con parámetros adicionales
-                    // que fuercen el bypass de la advertencia
-                    const newIframe = document.createElement('iframe');
-                    newIframe.id = 'liveStream';
-                    newIframe.allowFullscreen = true;
-                    newIframe.allow = 'autoplay; fullscreen';
-                    newIframe.frameBorder = '0';
-                    newIframe.scrolling = 'no';
-                    newIframe.style.background = '#000';
-                    newIframe.style.position = 'absolute';
-                    newIframe.style.top = '0';
-                    newIframe.style.left = '0';
-                    newIframe.style.width = '100%';
-                    newIframe.style.height = '100%';
-                    newIframe.style.zIndex = '10';
-                    
-                    // Agregar parámetros para evitar la advertencia y forzar autoplay
-                    newIframe.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 
-                                '_ngrokBypass=true&autoplay=true&muted=false&playsinline=true&t=' + Date.now();
-                    
-                    // Reemplazar el iframe existente
-                    iframe.parentNode.replaceChild(newIframe, iframe);
-                    iframe = newIframe; // Actualizar la referencia
-                    
-                    // Inyectar un script en la página que automáticamente haga clic en el botón "Visit Site"
-                    const bypassScript = document.createElement('script');
-                    bypassScript.textContent = `
-                        // Función para encontrar y hacer clic en el botón "Visit Site"
-                        function findAndClickVisitSiteButton() {
-                            // Buscar en todos los iframes
-                            try {
-                                const frames = document.querySelectorAll('iframe');
-                                for (let i = 0; i < frames.length; i++) {
-                                    try {
-                                        const frameDoc = frames[i].contentDocument || frames[i].contentWindow.document;
-                                        // Buscar botones o elementos con texto "Visit Site"
-                                        const buttons = frameDoc.querySelectorAll('button, a, [role="button"]');
-                                        
-                                        for (let j = 0; j < buttons.length; j++) {
-                                            if (buttons[j].textContent && buttons[j].textContent.includes('Visit Site')) {
-                                                console.log('¡Botón encontrado! Haciendo clic...');
-                                                buttons[j].click();
-                                                return true;
-                                            }
-                                        }
-                                        
-                                        // Buscar por ID o clase común en ngrok
-                                        const ngrokButtons = frameDoc.querySelectorAll('.btn-primary, #proceed-button');
-                                        for (let j = 0; j < ngrokButtons.length; j++) {
-                                            console.log('¡Botón ngrok encontrado! Haciendo clic...');
-                                            ngrokButtons[j].click();
-                                            return true;
-                                        }
-                                    } catch (e) { 
-                                        // Ignorar errores de seguridad de cross-origin
-                                    }
-                                }
-                            } catch (e) {
-                                console.log('Error buscando botón:', e);
-                            }
-                            
-                            return false;
-                        }
-                        
-                        // Intentar varias veces (ngrok puede cargar con retraso)
-                        let attempts = 0;
-                        const maxAttempts = 10;
-                        
-                        function attemptBypass() {
-                            if (attempts < maxAttempts) {
-                                if (!findAndClickVisitSiteButton()) {
-                                    attempts++;
-                                    setTimeout(attemptBypass, 1000); // Intentar cada segundo
-                                }
-                            }
-                        }
-                        
-                        // Iniciar intentos de bypass
-                        attemptBypass();
-                        
-                        // También verificar cuando el documento cambia (MutationObserver)
-                        const observer = new MutationObserver(function(mutations) {
-                            findAndClickVisitSiteButton();
-                        });
-                        
-                        // Observar cambios en todo el documento
-                        observer.observe(document, { 
-                            childList: true, 
-                            subtree: true 
-                        });
-                    `;
-                    
-                    document.head.appendChild(bypassScript);
-                }
+                // Establecer la URL del iframe
+                iframe.src = bypassSrc;
                 
-                // Intento original de reproducción
-                attemptAutoplay();
+                // Añadir el script de bypass de ngrok
+                document.head.appendChild(createNgrokBypassScript());
                 
-                // Marcar como reproducido
-                videoStarted = true;
-            }
-            
-            // Función para intentar reproducir automáticamente
-            function attemptAutoplay() {
-                videoStarted = true;
+                // Crear un iframe invisible que también intente acceder a la URL
+                // Esto puede ayudar con el bypass de ngrok en segundo plano
+                const hiddenFrame = document.createElement('iframe');
+                hiddenFrame.style.display = 'none';
+                hiddenFrame.src = bypassSrc;
+                document.body.appendChild(hiddenFrame);
                 
-                try {
-                    // Simulación de clic para activar los controles en el iframe
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    
-                    // Intentar encontrar y hacer clic en elementos comunes de reproductor
-                    const playButtons = iframeDoc.querySelectorAll('button, .ytp-large-play-button, .vjs-big-play-button, .play-button');
-                    if (playButtons.length > 0) {
-                        for (let button of playButtons) {
-                            button.click();
-                        }
-                    } else {
-                        // Si no encontramos botones, hacemos clic en el iframe
+                // Después de 3 segundos, intentar enviar mensajes al iframe
+                setTimeout(() => {
+                    try {
+                        // Intentar enviar mensaje de reproducción
+                        iframe.contentWindow.postMessage('play', '*');
+                        
+                        // Intentar hacer clic directo en el iframe
                         const clickEvent = new MouseEvent('click', {
                             bubbles: true,
                             cancelable: true,
                             view: window
                         });
-                        
-                        iframe.contentWindow.document.body.dispatchEvent(clickEvent);
+                        iframe.dispatchEvent(clickEvent);
+                    } catch (e) {
+                        console.log('Error en comunicación con iframe:', e);
                     }
-                    
-                    // Enviar mensaje al iframe en caso de que esté escuchando mensajes
-                    iframe.contentWindow.postMessage('play', '*');
-                    
-                } catch (e) {
-                    console.log('Autoplay fallido, intentando alternativas...');
-                    
-                    // Si falla el acceso directo, recargamos el iframe con autoplay en la URL
-                    let currentSrc = iframe.src;
-                    if (currentSrc.indexOf('autoplay=false') > -1) {
-                        iframe.src = currentSrc.replace('autoplay=false', 'autoplay=true');
-                    } else if (currentSrc.indexOf('autoplay=true') === -1) {
-                        iframe.src = currentSrc + (currentSrc.indexOf('?') > -1 ? '&' : '?') + 'autoplay=true';
-                    }
-                    
-                    // Establecemos un breve retraso y luego intentamos crear y simular un evento de clic
-                    setTimeout(function() {
-                        try {
-                            const event = new MouseEvent('click', {
-                                view: window,
-                                bubbles: true,
-                                cancelable: true
-                            });
-                            
-                            iframe.dispatchEvent(event);
-                        } catch (e) {
-                            console.log('Intento alternativo fallido');
-                        }
-                    }, 1000);
-                }
+                }, 3000);
             }
             
-            // Detectar cambios en pantalla completa
-            document.addEventListener('fullscreenchange', handleFullscreenChange);
-            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-            document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+            // Manejar clic en botón de play para dispositivos móviles
+            playButtonOverlay.addEventListener('click', startPlayer);
             
-            // Detectar actividad del usuario
-            document.addEventListener('mousemove', updateUserActivity);
-            document.addEventListener('keydown', updateUserActivity);
-            document.addEventListener('click', updateUserActivity);
+            // Iniciar automáticamente en desktop o después de 2 segundos en móvil
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
-            function adjustIframe() {
-    const containerWidth = videoContainer.offsetWidth;
-    const containerHeight = videoContainer.offsetHeight;
-    
-    // Actualizar dimensiones del iframe si es necesario
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-}
-
-// Manejar cambios de pantalla completa
-function handleFullscreenChange() {
-    isFullscreen = !!document.fullscreenElement || 
-                  !!document.webkitFullscreenElement || 
-                  !!document.mozFullScreenElement || 
-                  !!document.msFullscreenElement;
-    
-    if (isFullscreen) {
-        // Si está en pantalla completa, mostramos el banner superior
-        showBanner(topBanner, topBannerContainer, adScripts.medium[0]);
-        
-        // También mostramos algún banner en esquina aleatoriamente
-        const randomCorner = Math.floor(Math.random() * 3);
-        const cornerBanners = [cornerBannerTL, cornerBannerTR, cornerBannerBL];
-        const cornerContainers = [cornerContainerTL, cornerContainerTR, cornerContainerBL];
-        
-        setTimeout(() => {
-            showBanner(cornerBanners[randomCorner], cornerContainers[randomCorner], adScripts.small[0]);
-        }, 5000); // 5 segundos después
-    } else {
-        // Si sale de pantalla completa, ocultamos banners específicos
-        topBanner.style.display = 'none';
-        cornerBannerTL.style.display = 'none';
-        cornerBannerTR.style.display = 'none';
-        cornerBannerBL.style.display = 'none';
-    }
-}
-
-// Actualizar estado de actividad del usuario
-function updateUserActivity() {
-    lastUserActivity = Date.now();
-    userActive = true;
-}
-
-// Comprobar inactividad del usuario
-function checkUserInactivity() {
-    const now = Date.now();
-    if (now - lastUserActivity > config.inactivityThreshold) {
-        userActive = false;
-    }
-}
-
-// Mostrar un banner con su contenido
-function showBanner(bannerElement, containerElement, scriptSrc) {
-    // Si ya hay un banner activo del mismo tipo, no hacemos nada
-    if (bannerElement.style.display === 'block') return;
-    
-    // Limpiar contenedor
-    while (containerElement.firstChild) {
-        containerElement.removeChild(containerElement.firstChild);
-    }
-    
-    // Crear script para cargar el anuncio
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = scriptSrc;
-    script.async = true;
-    
-    // Añadir script al contenedor
-    containerElement.appendChild(script);
-    
-    // Mostrar el banner
-    bannerElement.style.display = 'block';
-    
-    // Registrar banner activo
-    currentActiveBanner = bannerElement;
-    
-    // Programar cierre automático
-    setTimeout(() => {
-        bannerElement.style.display = 'none';
-        currentActiveBanner = null;
-    }, config.bannerDisplayTime);
-}
-
-// Iniciar rotación de banners
-function startBannerRotation() {
-    bannerRotationTimer = setInterval(() => {
-        if (!userActive || !videoStarted) return;
-        
-        // Si no hay un banner activo, mostramos uno nuevo
-        if (!currentActiveBanner) {
-            const random = Math.random();
-            
-            if (random < 0.4) {
-                // 40% probabilidad: banner principal
-                showBanner(fullscreenBanner, bannerAdContainer, adScripts.large[Math.floor(Math.random() * adScripts.large.length)]);
-            } else if (random < 0.7) {
-                // 30% probabilidad: overlay inferior
-                showBanner(overlayBanner, overlayContainer, adScripts.medium[0]);
+            if (!isMobile) {
+                // En desktop, iniciamos automáticamente
+                startPlayer();
             } else {
-                // 30% probabilidad: banner esquina aleatoria
-                const cornerIndex = Math.floor(Math.random() * 3);
-                const corners = [cornerBannerTL, cornerBannerTR, cornerBannerBL];
-                const containers = [cornerContainerTL, cornerContainerTR, cornerContainerBL];
-                
-                showBanner(corners[cornerIndex], containers[cornerIndex], adScripts.small[0]);
-            }
-        }
-    }, config.rotationInterval);
-}
-
-// Simulación de pausas para mostrar anuncios
-function setupPauseDetection() {
-    // Simular pausas basadas en tiempo
-    setInterval(() => {
-        if (!videoStarted || pauseDetected) return;
-        
-        // Probabilidad de 10% cada 2 minutos de "detectar" una pausa
-        if (Math.random() < 0.1) {
-            pauseDetected = true;
-            
-            // Mostrar overlay de pausa con anuncio
-            pauseOverlay.style.display = 'flex';
-            
-            // Limpiar contenedor
-            while (pauseOverlayContent.firstChild) {
-                pauseOverlayContent.removeChild(pauseOverlayContent.firstChild);
+                // En móvil, mantenemos el botón de play visible
+                // pero también intentamos iniciar después de 2 segundos
+                setTimeout(() => {
+                    if (playButtonOverlay.style.display !== 'none') {
+                        startPlayer();
+                    }
+                }, 2000);
             }
             
-            // Cargar anuncio en overlay de pausa
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = adScripts.large[Math.floor(Math.random() * adScripts.large.length)];
-            script.async = true;
-            pauseOverlayContent.appendChild(script);
-            
-            // Ocultar después de un tiempo
-            setTimeout(() => {
-                pauseOverlay.style.display = 'none';
-                pauseDetected = false;
-            }, 15000); // 15 segundos de pausa
-        }
-    }, 2 * 60 * 1000); // Verificar cada 2 minutos
-}
-
-// Configurar botones de cierre
-closeBanner.addEventListener('click', () => {
-    fullscreenBanner.style.display = 'none';
-    currentActiveBanner = null;
-});
-
-closeTopBanner.addEventListener('click', () => {
-    topBanner.style.display = 'none';
-});
-
-closeCornerTL.addEventListener('click', () => {
-    cornerBannerTL.style.display = 'none';
-    if (currentActiveBanner === cornerBannerTL) currentActiveBanner = null;
-});
-
-closeCornerTR.addEventListener('click', () => {
-    cornerBannerTR.style.display = 'none';
-    if (currentActiveBanner === cornerBannerTR) currentActiveBanner = null;
-});
-
-closeCornerBL.addEventListener('click', () => {
-    cornerBannerBL.style.display = 'none';
-    if (currentActiveBanner === cornerBannerBL) currentActiveBanner = null;
-});
-
-closeOverlay.addEventListener('click', () => {
-    overlayBanner.style.display = 'none';
-    if (currentActiveBanner === overlayBanner) currentActiveBanner = null;
-});
-
-// Verificar inactividad cada segundo
-setInterval(checkUserInactivity, 1000);
-
-// Ajustar iframe en redimensión
-window.addEventListener('resize', adjustIframe);
-
-// Iniciar reproducción
-startVideoPlayback();
-
-// Iniciar rotación de banners después del retraso inicial
-setTimeout(() => {
-    if (videoStarted) {
-        startBannerRotation();
-        setupPauseDetection();
-    }
-}, config.initialDelay);
-
-// Forzar clic en la publicidad según la actividad del usuario
-setInterval(() => {
-    if (!userActive && videoStarted && Math.random() < 0.3) { // 30% de probabilidad
-        // Simular clic en un anuncio aleatorio visible
-        const adContainers = document.querySelectorAll('.ad-content');
-        if (adContainers.length > 0) {
-            const randomIndex = Math.floor(Math.random() * adContainers.length);
-            const randomContainer = adContainers[randomIndex];
-            
-            // Simular un clic en el contenedor
-            try {
-                const iframes = randomContainer.querySelectorAll('iframe');
-                if (iframes.length > 0) {
-                    const randomIframe = iframes[Math.floor(Math.random() * iframes.length)];
-                    const rect = randomIframe.getBoundingClientRect();
-                    
-                    // Crear y disparar un evento de clic
-                    const clickEvent = new MouseEvent('click', {
-                        bubbles: true,
-                        cancelable: true,
-                        view: window,
-                        clientX: rect.left + rect.width / 2,
-                        clientY: rect.top + rect.height / 2
-                    });
-                    
-                    randomIframe.dispatchEvent(clickEvent);
+            // Escuchar mensajes desde el iframe
+            window.addEventListener('message', function(event) {
+                // Si recibimos un mensaje de reproducción iniciada
+                if (event.data && event.data === 'playbackStarted') {
+                    console.log('Reproducción iniciada correctamente');
                 }
-            } catch (e) {
-                // Ignorar errores de cross-origin
-            }
-        }
-    }
-}, 45 * 1000); // Verificar cada 45 segundos
-
-// Función para intentar expandir anuncios iframe
-function tryExpandAds() {
-    const adIframes = document.querySelectorAll('.ad-content iframe');
-    
-    adIframes.forEach(adIframe => {
-        try {
-            // Intentar acceder al contenido del iframe
-            const iframeDoc = adIframe.contentDocument || adIframe.contentWindow.document;
-            
-            // Buscar botones de expandir o elementos interactivos
-            const buttons = iframeDoc.querySelectorAll('button, a[role="button"], [class*="expand"]');
-            
-            if (buttons.length > 0) {
-                // Elegir un botón al azar
-                const randomButton = buttons[Math.floor(Math.random() * buttons.length)];
-                randomButton.click();
-            }
-        } catch (e) {
-            // Error de seguridad cross-origin, es normal
-        }
-    });
-}
-
-// Intentar expandir anuncios después de cargar y periódicamente
-setTimeout(tryExpandAds, 5000);
-setInterval(tryExpandAds, 30000);
-
-});
-</script>
+            });
+        });
+    </script>
 </body>
 </html>
