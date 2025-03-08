@@ -66,10 +66,9 @@
             width: 100%;
             height: 100%;
             border: none;
-            z-index: 10; /* Asegurar que esté por encima */
+            z-index: 10;
         }
         
-        /* Ocultar elementos no deseados de Owncast */
         iframe {
             background-color: #000;
         }
@@ -132,7 +131,134 @@
             color: #888;
         }
         
-        /* Sistema de breakpoints mejorado */
+        /* Banner para pantalla completa - Más sutil */
+        .fullscreen-banner {
+            position: fixed;
+            bottom: 20px; /* Posicionado más arriba del borde inferior */
+            right: 20px; /* Posicionado desde la derecha */
+            width: 300px; /* Banner más pequeño */
+            background-color: rgba(0, 0, 0, 0.7); /* Más transparente */
+            z-index: 9999;
+            display: none; /* Oculto por defecto */
+            padding: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .fullscreen-banner-content {
+            position: relative;
+        }
+        
+        .close-banner {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        /* Banner superior en modo pantalla completa */
+        .fullscreen-top-banner {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 468px; /* Tamaño estándar de banner */
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: none;
+            padding: 5px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Mini banners flotantes en las esquinas */
+        .corner-banner {
+            position: fixed;
+            width: 160px;
+            height: 160px;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: none;
+            padding: 5px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .corner-banner.top-left {
+            top: 15px;
+            left: 15px;
+        }
+        
+        .corner-banner.top-right {
+            top: 15px;
+            right: 15px;
+        }
+        
+        .corner-banner.bottom-left {
+            bottom: 15px;
+            left: 15px;
+        }
+        
+        /* Overlay para anuncios de barra - semi transparente */
+        .overlay-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: none;
+            padding: 5px 0;
+            text-align: center;
+        }
+        
+        .overlay-banner-content {
+            max-width: 728px;
+            height: 100%;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Overlay de pausa - aparece cuando el usuario pausa el video */
+        .pause-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 11;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pause-overlay-content {
+            width: 300px;
+            height: 250px;
+            position: relative;
+        }
+        
         @media (max-width: 1200px) {
             .container {
                 max-width: 100%;
@@ -156,7 +282,7 @@
             }
             
             .video-container {
-                padding-bottom: 56.25%; /* Mantener proporción 16:9 */
+                padding-bottom: 56.25%;
             }
             
             .ad-sidebar {
@@ -167,6 +293,17 @@
             
             .ad-container {
                 margin-bottom: 0;
+            }
+            
+            .fullscreen-banner {
+                width: 250px;
+                bottom: 15px;
+                right: 15px;
+            }
+            
+            .fullscreen-top-banner,
+            .overlay-banner-content {
+                width: 90%;
             }
         }
         
@@ -187,6 +324,10 @@
                 font-size: 12px;
                 padding: 4px 8px;
             }
+            
+            .fullscreen-banner {
+                width: 200px;
+            }
         }
     </style>
 </head>
@@ -199,7 +340,6 @@
         <div class="main-content">
             <div class="stream-section">
                 <div class="video-container">
-                    <!-- Modificado para mejor integración con Owncast -->
                     <iframe id="liveStream" 
                             src="https://3878-38-172-130-234.ngrok-free.app/embed/video?autoplay=true&muted=false&pip=false&frameborder=0" 
                             allowfullscreen="true" 
@@ -208,12 +348,17 @@
                             frameborder="0"
                             style="background: #000;">
                     </iframe>
+                    
+                    <!-- Overlay que aparece durante pausas -->
+                    <div class="pause-overlay" id="pauseOverlay">
+                        <div class="pause-overlay-content" id="pauseOverlayContent"></div>
+                    </div>
                 </div>
                 
                 <div class="video-info">
                     <span class="status"><i class="fas fa-circle"></i> EN VIVO</span>
                     <h1>Transmisión en Vivo</h1>
-                    <p>18:00 Melgar vs Sporting Cristal Liga 1 Max en Vivo.</p>
+                    <p>Disfruta de nuestra transmisión en vivo en alta calidad. No te pierdas ningún detalle y comparte con tus amigos.</p>
                 </div>
             </div>
             
@@ -285,25 +430,473 @@
         </footer>
     </div>
 
-    <!-- Script para asegurar que el iframe se ajuste correctamente -->
+    <!-- Banner en esquina inferior derecha pantalla completa -->
+    <div class="fullscreen-banner" id="fullscreenBanner">
+        <div class="fullscreen-banner-content">
+            <button class="close-banner" id="closeBanner">✕</button>
+            <div id="bannerAdContainer"></div>
+        </div>
+    </div>
+    
+    <!-- Banner superior en modo pantalla completa -->
+    <div class="fullscreen-top-banner" id="topBanner">
+        <div class="fullscreen-banner-content">
+            <button class="close-banner" id="closeTopBanner">✕</button>
+            <div id="topBannerContainer"></div>
+        </div>
+    </div>
+    
+    <!-- Mini banner esquina superior izquierda -->
+    <div class="corner-banner top-left" id="cornerBannerTL">
+        <div class="fullscreen-banner-content">
+            <button class="close-banner" id="closeCornerTL">✕</button>
+            <div id="cornerContainerTL"></div>
+        </div>
+    </div>
+    
+    <!-- Mini banner esquina superior derecha -->
+    <div class="corner-banner top-right" id="cornerBannerTR">
+        <div class="fullscreen-banner-content">
+            <button class="close-banner" id="closeCornerTR">✕</button>
+            <div id="cornerContainerTR"></div>
+        </div>
+    </div>
+    
+    <!-- Mini banner esquina inferior izquierda -->
+    <div class="corner-banner bottom-left" id="cornerBannerBL">
+        <div class="fullscreen-banner-content">
+            <button class="close-banner" id="closeCornerBL">✕</button>
+            <div id="cornerContainerBL"></div>
+        </div>
+    </div>
+    
+    <!-- Banner overlay en parte inferior -->
+    <div class="overlay-banner" id="overlayBanner">
+        <div class="overlay-banner-content">
+            <button class="close-banner" id="closeOverlay">✕</button>
+            <div id="overlayContainer"></div>
+        </div>
+    </div>
+
+    <!-- Script para manejar todos los banners y el iframe -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Asegurar que el iframe ocupe todo el espacio del contenedor
+            // Referencias a elementos del DOM
+            const fullscreenBanner = document.getElementById('fullscreenBanner');
+            const topBanner = document.getElementById('topBanner');
+            const cornerBannerTL = document.getElementById('cornerBannerTL');
+            const cornerBannerTR = document.getElementById('cornerBannerTR');
+            const cornerBannerBL = document.getElementById('cornerBannerBL');
+            const overlayBanner = document.getElementById('overlayBanner');
+            const pauseOverlay = document.getElementById('pauseOverlay');
+            
+            // Botones para cerrar
+            const closeBanner = document.getElementById('closeBanner');
+            const closeTopBanner = document.getElementById('closeTopBanner');
+            const closeCornerTL = document.getElementById('closeCornerTL');
+            const closeCornerTR = document.getElementById('closeCornerTR');
+            const closeCornerBL = document.getElementById('closeCornerBL');
+            const closeOverlay = document.getElementById('closeOverlay');
+            
+            // Contenedores para anuncios
+            const bannerAdContainer = document.getElementById('bannerAdContainer');
+            const topBannerContainer = document.getElementById('topBannerContainer');
+            const cornerContainerTL = document.getElementById('cornerContainerTL');
+            const cornerContainerTR = document.getElementById('cornerContainerTR');
+            const cornerContainerBL = document.getElementById('cornerContainerBL');
+            const overlayContainer = document.getElementById('overlayContainer');
+            const pauseOverlayContent = document.getElementById('pauseOverlayContent');
+            
             const videoContainer = document.querySelector('.video-container');
             const iframe = document.getElementById('liveStream');
             
-            // Ajustar tamaño en carga y en resize
+            // Variables de estado
+            let isFullscreen = false;
+            let bannerRotationTimer;
+            let currentActiveBanner = null;
+            let pauseDetected = false;
+            let lastUserActivity = Date.now();
+            let userActive = true;
+            
+            // Configuración de tiempos e intervalos (en milisegundos)
+            const config = {
+                initialDelay: 15 * 1000,          // 15 segundos antes del primer anuncio
+                rotationInterval: 45 * 1000,      // Rotación de anuncios cada 45 segundos
+                bannerDisplayTime: 20 * 1000,     // Cada banner se muestra 20 segundos
+                inactivityThreshold: 10 * 1000,   // Tiempo para considerar inactividad: 10 segundos
+                smallBannerInterval: 90 * 1000,   // Mostrar mini banners cada 90 segundos
+                overlayInterval: 3 * 60 * 1000    // Mostrar overlay cada 3 minutos
+            };
+            
+            // Colección de scripts de anuncios
+            const adScripts = {
+                large: [
+                    '//pl26053463.effectiveratecpm.com/3d9ae476db848afa0c64beda8f15e01b/invoke.js',
+                    '//pl26053452.effectiveratecpm.com/4a9850fd4fffa988a63d67a73cba7f74/invoke.js'
+                ],
+                medium: [
+                    '//pl26053469.effectiveratecpm.com/07ea7873843b6301d8dd65dd9190f679/invoke.js'
+                ],
+                small: [
+                    '//www.highperformanceformat.com/09d25cb4a0f0d326ab324f93517d54aa/invoke.js'
+                ]
+            };
+            
+            // Detectar cambios en pantalla completa
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+            document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+            
+            // Detectar actividad del usuario
+            document.addEventListener('mousemove', updateUserActivity);
+            document.addEventListener('keydown', updateUserActivity);
+            document.addEventListener('click', updateUserActivity);
+            
+            // Función para ajustar iframe
             function adjustIframe() {
                 const containerWidth = videoContainer.offsetWidth;
-                const containerHeight = (containerWidth * 9) / 16; // Mantener proporción 16:9
+                const containerHeight = (containerWidth * 9) / 16;
                 
                 iframe.style.width = '100%';
                 iframe.style.height = '100%';
             }
             
-            // Ejecutar al cargar y cuando cambie el tamaño de la ventana
+            // Inicializar
             adjustIframe();
             window.addEventListener('resize', adjustIframe);
+            
+            // Actualizar estado de actividad del usuario
+            function updateUserActivity() {
+                lastUserActivity = Date.now();
+                userActive = true;
+                
+                // Comprobar inactividad cada 5 segundos
+                setTimeout(checkInactivity, 5000);
+            }
+            
+            // Comprobar si el usuario está inactivo
+            function checkInactivity() {
+                if (Date.now() - lastUserActivity > config.inactivityThreshold) {
+                    userActive = false;
+                    
+                    // Si está en pantalla completa e inactivo, mostrar overlay
+                    if (isFullscreen && !pauseDetected) {
+                        showOverlayBanner();
+                    }
+                }
+            }
+            
+            // Manejar cambios de pantalla completa
+            function handleFullscreenChange() {
+                isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || 
+                                document.mozFullScreenElement || document.msFullscreenElement);
+                
+                // Ocultar todos los banners al entrar/salir del modo pantalla completa
+                hideAllBanners();
+                
+                if (isFullscreen) {
+                    // Programar mostrar el primer banner después del delay inicial
+                    setTimeout(function() {
+                        startBannerRotation();
+                    }, config.initialDelay);
+                } else {
+                    // Detener rotación al salir de pantalla completa
+                    clearTimeout(bannerRotationTimer);
+                }
+            }
+            
+            // Sistema de rotación de banners
+            function startBannerRotation() {
+                if (!isFullscreen) return;
+                
+                // Detener rotación existente si la hay
+                clearTimeout(bannerRotationTimer);
+                
+                // Decidir qué tipo de banner mostrar basado en rotación y aleatoriedad
+                const random = Math.random();
+                
+                // Estrategia de rotación: 
+                // 40% probabilidad banner completo inferior
+                // 30% probabilidad banner superior
+                // 30% probabilidad mini banners en esquinas
+                
+                if (random < 0.4) {
+                    showFullscreenBanner();
+                } else if (random < 0.7) {
+                    showTopBanner();
+                } else {
+                    // Mostrar uno de los mini banners en esquinas aleatoriamente
+                    const cornerRandom = Math.random();
+                    if (cornerRandom < 0.33) {
+                        showCornerBanner('TL');
+                    } else if (cornerRandom < 0.66) {
+                        showCornerBanner('TR');
+                    } else {
+                        showCornerBanner('BL');
+                    }
+                }
+                
+                // Programar próxima rotación
+                bannerRotationTimer = setTimeout(function() {
+                    hideAllBanners();
+                    
+                    // Programar siguiente banner después de un breve descanso
+                    setTimeout(function() {
+                        startBannerRotation();
+                    }, 5000); // 5 segundos de descanso entre banners
+                    
+                }, config.bannerDisplayTime);
+            }
+            
+            // Ocultar todos los banners
+            function hideAllBanners() {
+                fullscreenBanner.style.display = 'none';
+                topBanner.style.display = 'none';
+                cornerBannerTL.style.display = 'none';
+                cornerBannerTR.style.display = 'none';
+                cornerBannerBL.style.display = 'none';
+                overlayBanner.style.display = 'none';
+                pauseOverlay.style.display = 'none';
+                
+                currentActiveBanner = null;
+            }
+            
+            // Funciones para mostrar cada tipo de banner
+            function showFullscreenBanner() {
+                if (!isFullscreen || currentActiveBanner) return;
+                currentActiveBanner = 'fullscreen';
+                
+                // Limpiar contenido anterior
+                bannerAdContainer.innerHTML = '';
+                
+                // Crear e insertar el script dinámicamente
+                const scriptElement = document.createElement('script');
+                scriptElement.async = true;
+                scriptElement.setAttribute('data-cfasync', 'false');
+                scriptElement.src = getRandomAdScript('large');
+                bannerAdContainer.appendChild(scriptElement);
+                
+                // Crear div contenedor para el anuncio
+                const containerDiv = document.createElement('div');
+                containerDiv.id = 'container-ad-' + Math.random().toString(36).substring(2, 15);
+                bannerAdContainer.appendChild(containerDiv);
+                
+                // Mostrar el banner
+                fullscreenBanner.style.display = 'block';
+            }
+            
+            function showTopBanner() {
+                if (!isFullscreen || currentActiveBanner) return;
+                currentActiveBanner = 'top';
+                
+                topBannerContainer.innerHTML = '';
+                
+                const scriptElement = document.createElement('script');
+                scriptElement.async = true;
+                scriptElement.setAttribute('data-cfasync', 'false');
+                scriptElement.src = getRandomAdScript('medium');
+                topBannerContainer.appendChild(scriptElement);
+                
+                const containerDiv = document.createElement('div');
+                containerDiv.id = 'container-ad-' + Math.random().toString(36).substring(2, 15);
+                topBannerContainer.appendChild(containerDiv);
+                
+                topBanner.style.display = 'block';
+            }
+            
+            function showCornerBanner(position) {
+                if (!isFullscreen || currentActiveBanner) return;
+                
+                let container, banner;
+                
+                switch(position) {
+                    case 'TL':
+                        container = cornerContainerTL;
+                        banner = cornerBannerTL;
+                        currentActiveBanner = 'cornerTL';
+                        break;
+                    case 'TR':
+                        container = cornerContainerTR;
+                        banner = cornerBannerTR;
+                        currentActiveBanner = 'cornerTR';
+                        break;
+                    case 'BL':
+                        container = cornerContainerBL;
+                        banner = cornerBannerBL;
+                        currentActiveBanner = 'cornerBL';
+                        break;
+                    default:
+                        return;
+                }
+                
+                container.innerHTML = '';
+                
+                const scriptElement = document.createElement('script');
+                scriptElement.async = true;
+                scriptElement.setAttribute('data-cfasync', 'false');
+                scriptElement.src = getRandomAdScript('small');
+                container.appendChild(scriptElement);
+                
+                const containerDiv = document.createElement('div');
+                containerDiv.id = 'container-ad-' + Math.random().toString(36).substring(2, 15);
+                container.appendChild(containerDiv);
+                
+                banner.style.display = 'block';
+            }
+            
+            function showOverlayBanner() {
+                if (!isFullscreen || currentActiveBanner) return;
+                currentActiveBanner = 'overlay';
+                
+                overlayContainer.innerHTML = '';
+                
+                const scriptElement = document.createElement('script');
+                scriptElement.async = true;
+                scriptElement.setAttribute('data-cfasync', 'false');
+                scriptElement.src = getRandomAdScript('large');
+                overlayContainer.appendChild(scriptElement);
+                
+                const containerDiv = document.createElement('div');
+                containerDiv.id = 'container-ad-' + Math.random().toString(36).substring(2, 15);
+                overlayContainer.appendChild(containerDiv);
+                
+                overlayBanner.style.display = 'block';
+                
+                // Configurar ocultamiento automático
+                setTimeout(function() {
+                    if (overlayBanner.style.display === 'block') {
+                        overlayBanner.style.display = 'none';
+                        currentActiveBanner = null;
+                    }
+                }, 15000); // 15 segundos
+            }
+            
+            function showPauseOverlay() {
+                if (!isFullscreen || !pauseDetected) return;
+                
+                pauseOverlayContent.innerHTML = '';
+                
+                const scriptElement = document.createElement('script');
+                scriptElement.async = true;
+                scriptElement.setAttribute('data-cfasync', 'false');
+                scriptElement.src = getRandomAdScript('medium');
+                pauseOverlayContent.appendChild(scriptElement);
+                
+                const containerDiv = document.createElement('div');
+                containerDiv.id = 'container-ad-' + Math.random().toString(36).substring(2, 15);
+                pauseOverlayContent.appendChild(containerDiv);
+                
+                pauseOverlay.style.display = 'flex';
+            }
+            
+            // Obtener script aleatorio según el tamaño
+            function getRandomAdScript(size) {
+                const scripts = adScripts[size] || adScripts.medium;
+                return scripts[Math.floor(Math.random() * scripts.length)];
+            }
+            
+            // Configurar botones para cerrar banners
+            closeBanner.addEventListener('click', function() {
+                fullscreenBanner.style.display = 'none';
+                currentActiveBanner = null;
+            });
+            
+            closeTopBanner.addEventListener('click', function() {
+                topBanner.style.display = 'none';
+                currentActiveBanner = null;
+            });
+            
+            closeCornerTL.addEventListener('click', function() {
+                cornerBannerTL.style.display = 'none';
+                currentActiveBanner = null;
+            });
+            
+            closeCornerTR.addEventListener('click', function() {
+                cornerBannerTR.style.display = 'none';
+                currentActiveBanner = null;
+            });
+            
+            closeCornerBL.addEventListener('click', function() {
+                cornerBannerBL.style.display = 'none';
+                currentActiveBanner = null;
+            });
+            
+            closeOverlay.addEventListener('click', function() {
+                overlayBanner.style.display = 'none';
+                currentActiveBanner = null;
+            });
+            
+            // Intentar detectar pausa en el iframe (opcional, más complejo en la práctica)
+            // Este es un enfoque simplificado que intenta detectar interacciones con el iframe
+            iframe.contentWindow.addEventListener('pause', function() {
+                pauseDetected = true;
+                showPauseOverlay();
+            }, false);
+            
+            iframe.contentWindow.addEventListener('play', function() {
+                pauseDetected = false;
+                if (pauseOverlay.style.display === 'flex') {
+                    pauseOverlay.style.display = 'none';
+                }
+            }, false);
+            
+            // Iniciar manejo de anuncios con retrasos escalonados
+            setTimeout(function() {
+                // Iniciar comprobación periódica de inactividad
+                setInterval(function() {
+                    if (isFullscreen && userActive === false && !currentActiveBanner) {
+                        const random = Math.random();
+                        if (random < 0.3) {
+                            showOverlayBanner();
+                        }
+                    }
+                }, config.overlayInterval);
+                
+                // Mini banners ocasionales
+                setInterval(function() {
+                    if (isFullscreen && !currentActiveBanner) {
+                        const random = Math.random();
+                        if (random < 0.25) {
+                            const position = ['TL', 'TR', 'BL'][Math.floor(Math.random() * 3)];
+                            showCornerBanner(position);
+                            
+                            // Auto-ocultar después de un tiempo
+                            setTimeout(function() {
+                                hideAllBanners();
+                            }, 12000);
+                        }
+                    }
+                }, config.smallBannerInterval);
+                
+            }, config.initialDelay);
+            
+            // Manejar el evento cuando el usuario hace clic en el contenedor de video
+            videoContainer.addEventListener('click', function(e) {
+                // Evitar que el evento se propague al iframe si hay un banner activo
+                if (currentActiveBanner) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    hideAllBanners();
+                }
+            });
+            
+            // Mejora de experiencia: reducir frecuencia de anuncios si el usuario interactúa frecuentemente
+            let userInteractions = 0;
+            document.addEventListener('click', function() {
+                userInteractions++;
+                
+                // Si el usuario interactúa mucho, reducir la frecuencia de anuncios
+                if (userInteractions > 5) {
+                    config.rotationInterval = 60 * 1000; // Aumentar a 60 segundos
+                    config.bannerDisplayTime = 15 * 1000; // Reducir a 15 segundos
+                }
+                
+                if (userInteractions > 10) {
+                    config.rotationInterval = 90 * 1000; // Aumentar a 90 segundos
+                    config.overlayInterval = 5 * 60 * 1000; // Aumentar a 5 minutos
+                }
+            });
         });
     </script>
 </body>
