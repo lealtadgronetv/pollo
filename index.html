@@ -18,15 +18,11 @@
             color: #ffffff;
         }
         
-        /* CONTENEDOR PRINCIPAL - MODIFICAR ESTOS VALORES SEGÚN NECESITES */
         .container {
-            width: 90%;               /* Ancho del contenedor - puedes cambiarlo a un valor específico como 1200px */
-            max-width: 1400px;         /* Ancho máximo - puedes aumentarlo o disminuirlo */
-            margin: 0 auto;            /* Centrado automático - puedes cambiarlo si prefieres */
-            padding: 20px;             /* Espacio interno - puedes aumentarlo o disminuirlo */
-            /* Añade más propiedades según necesites */
-            /* height: auto; */        /* Descomenta y modifica para altura fija */
-            /* min-height: 800px; */   /* Descomenta y modifica para altura mínima */
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 10px;
         }
         
         header {
@@ -44,17 +40,17 @@
             color: #ff0000;
         }
         
-        /* CONTENIDO PRINCIPAL - MODIFICA LA DISTRIBUCIÓN AQUÍ */
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 300px;    /* Cambia estos valores para ajustar el ancho de columnas */
-            gap: 20px;                           /* Espacio entre columnas - puedes aumentarlo o disminuirlo */
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
         }
         
-        /* CONTENEDOR DEL VIDEO - MODIFICA LA PROPORCIÓN AQUÍ */
+        /* Contenedor de video mejorado */
         .video-container {
             position: relative;
-            padding-bottom: 36.25%;              /* Modifica este valor para cambiar la proporción del video */
+            width: 100%;
+            padding-bottom: 56.25%; /* Proporción 16:9 estándar para videos */
             height: 0;
             overflow: hidden;
             background: #000;
@@ -93,12 +89,10 @@
             margin-bottom: 15px;
         }
         
-        /* SIDEBAR DE ANUNCIOS - MODIFICA EL ANCHO AQUÍ */
         .ad-sidebar {
             display: flex;
             flex-direction: column;
-            gap: 20px;                          /* Espacio entre anuncios - puedes modificarlo */
-            /* width: 300px; */                 /* Descomenta para forzar un ancho específico */
+            gap: 20px;
         }
         
         .ad-container {
@@ -117,7 +111,7 @@
         }
         
         .ad-content {
-            min-height: 250px;                  /* Altura mínima para los anuncios - puedes modificarla */
+            min-height: 250px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -131,32 +125,65 @@
             color: #888;
         }
         
-        /* Responsive design - MODIFICA ESTOS VALORES PARA DISPOSITIVOS MÓVILES */
-        @media (max-width: 768px) {             /* Punto de quiebre - puedes cambiarlo */
+        /* Sistema de breakpoints mejorado para mejor responsividad */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 100%;
+                padding: 10px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr 250px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+        }
+        
+        @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
             
             .video-container {
-                padding-bottom: 30%;            /* Proporción para móviles - puedes modificarla */
+                padding-bottom: 56.25%; /* Mantiene proporción 16:9 incluso en móvil */
             }
             
             .ad-sidebar {
-                display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: center;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 15px;
             }
             
             .ad-container {
-                flex: 1;
-                min-width: 300px;               /* Ancho mínimo de anuncios en móvil */
+                margin-bottom: 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 20px;
+            }
+            
+            h1 {
+                font-size: 18px;
+            }
+            
+            .video-info {
+                padding: 10px;
+            }
+            
+            .status {
+                font-size: 12px;
+                padding: 4px 8px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Este es el contenedor principal que puedes modificar -->
     <div class="container">
         <header>
             <div class="logo"><i class="fas fa-play-circle"></i> FutbolFree</div>
@@ -202,7 +229,7 @@
                     </div>
                 </div>
                 
-                <!-- Anuncio 3 (Nuevo) -->
+                <!-- Anuncio 3 -->
                 <div class="ad-container">
                     <div class="ad-label">Publicidad</div>
                     <div class="ad-content">
@@ -219,7 +246,7 @@
                     </div>
                 </div>
                 
-                <!-- Anuncio 4 (Nuevo) -->
+                <!-- Anuncio 4 -->
                 <div class="ad-container">
                     <div class="ad-label">Publicidad</div>
                     <div class="ad-content">
