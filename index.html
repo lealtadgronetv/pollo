@@ -7,7 +7,14 @@
 </head>
 <body>
     <h1>Transmisión en Vivo</h1>
-    <iframe src="https://f4fe-38-172-130-234.ngrok-free.app/" width="800" height="450" frameborder="0" allowfullscreen></iframe>
+    <iframe id="liveStream" src="https://f4fe-38-172-130-234.ngrok-free.app/" width="800" height="450" frameborder="0" allowfullscreen></iframe>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var iframe = document.getElementById("liveStream");
+            iframe.src += "?autoplay=1";
+        });
+    </script>
     
     <!-- Publicidad -->
     <script type="text/javascript">
