@@ -1,185 +1,357 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bypass Ngrok</title>
+    <title>FUTBOLFREE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            background: black;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #121212;
+            color: #ffffff;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff0000;
+        }
+        
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* Proporción 16:9 */
+            height: 0;
+            overflow: hidden;
+            background: #000;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px; /* Espacio para anuncios debajo */
+        }
+        
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #000;
+        }
+        
+        .play-button-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 10;
+            cursor: pointer;
         }
         
-        #playButton {
-            background: red;
-            color: white;
-            border: none;
-            border-radius: 50%;
+        .play-button {
             width: 80px;
             height: 80px;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 100;
+            background-color: rgba(255, 0, 0, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            transition: transform 0.2s, background-color 0.2s;
         }
         
-        #hiddenFrameContainer {
+        .play-button:hover {
+            transform: scale(1.1);
+            background-color: #ff0000;
+        }
+        
+        .play-button i {
+            font-size: 40px;
+            color: white;
+        }
+        
+        .status-text {
+            color: white;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .video-info {
+            margin-top: 15px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .status {
+            display: inline-block;
+            background-color: #ff0000;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .hidden-frame {
             position: absolute;
             top: -9999px;
             left: -9999px;
             width: 1px;
             height: 1px;
+            visibility: hidden;
+        }
+
+        /* Estilos para los contenedores de anuncios */
+        .ad-container {
+            width: 100%;
             overflow: hidden;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .ad-container-sidebar {
+            float: right;
+            margin-left: 15px;
+            margin-bottom: 15px;
         }
         
-        #videoContainer {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            display: none;
+        .ad-container-bottom {
+            clear: both;
+            margin: 20px auto;
+        }
+
+        .ad-container-header {
+            margin-bottom: 15px;
         }
         
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        
-        #status {
-            color: white;
-            margin-top: 20px;
-            font-family: Arial, sans-serif;
+        /* Responsividad para anuncios */
+        @media (max-width: 768px) {
+            .play-button {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .play-button i {
+                font-size: 30px;
+            }
+
+            .ad-container-sidebar {
+                float: none;
+                margin: 15px auto;
+                display: block;
+            }
         }
     </style>
 </head>
 <body>
-    <button id="playButton">▶</button>
-    <div id="status"></div>
-    
-    <div id="hiddenFrameContainer">
-        <iframe id="hiddenFrame" src="about:blank"></iframe>
+    <div class="container">
+        <header>
+            <div class="logo"><i class="fas fa-play-circle"></i> FutbolFree</div>
+            <!-- Ad en la cabecera -->
+            <div class="ad-container-header">
+                <script type="text/javascript">
+                    atOptions = {
+                        'key' : '4f3ffa224e0b458368f395feb8380628',
+                        'format' : 'iframe',
+                        'height' : 50,
+                        'width' : 320,
+                        'params' : {}
+                    };
+                </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/4f3ffa224e0b458368f395feb8380628/invoke.js"></script>
+            </div>
+        </header>
+        
+        <!-- Ad en la barra lateral -->
+        <div class="ad-container-sidebar">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : '09d25cb4a0f0d326ab324f93517d54aa',
+                    'format' : 'iframe',
+                    'height' : 300,
+                    'width' : 160,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/09d25cb4a0f0d326ab324f93517d54aa/invoke.js"></script>
+        </div>
+        
+        <div class="video-container">
+            <div class="play-button-overlay" id="playButtonOverlay">
+                <div class="play-button">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="status-text" id="statusText">Haz clic para ver en vivo</div>
+            </div>
+            
+            <iframe id="mainFrame" 
+                    src="about:blank" 
+                    allowfullscreen="true" 
+                    allow="autoplay; fullscreen" 
+                    scrolling="no">
+            </iframe>
+        </div>
+        
+        <div class="video-info">
+            <span class="status"><i class="fas fa-circle"></i> EN VIVO</span>
+            <h2>Transmisión en Vivo</h2>
+            <p>Disfruta de nuestra transmisión en alta calidad.</p>
+        </div>
+        
+        <!-- Ad container contenedor grande -->
+        <div class="ad-container">
+            <script async="async" data-cfasync="false" src="//pl26053463.effectiveratecpm.com/3d9ae476db848afa0c64beda8f15e01b/invoke.js"></script>
+            <div id="container-3d9ae476db848afa0c64beda8f15e01b"></div>
+        </div>
+        
+        <!-- Ad container fondo -->
+        <div class="ad-container-bottom">
+            <script type='text/javascript' src='//pl26053452.effectiveratecpm.com/4a/98/50/4a9850fd4fffa988a63d67a73cba7f74.js'></script>
+            <script type='text/javascript' src='//pl26053469.effectiveratecpm.com/07/ea/78/07ea7873843b6301d8dd65dd9190f679.js'></script>
+        </div>
+        
+        <!-- Iframe oculto para manejar ngrok -->
+        <iframe id="hiddenFrame" class="hidden-frame" src="about:blank"></iframe>
     </div>
-    
-    <div id="videoContainer">
-        <iframe id="mainFrame" src="about:blank" allowfullscreen="true" allow="autoplay; fullscreen"></iframe>
-    </div>
-    
+
+    <!-- Script para redireccionamiento de anuncio -->
     <script>
-        const streamUrl = "https://5989-38-172-130-234.ngrok-free.app/embed/video?autoplay=true&muted=false&pip=false";
-        const playButton = document.getElementById("playButton");
-        const hiddenFrame = document.getElementById("hiddenFrame");
-        const mainFrame = document.getElementById("mainFrame");
-        const videoContainer = document.getElementById("videoContainer");
-        const statusElement = document.getElementById("status");
-        
-        // Función para actualizar el estado
-        function updateStatus(message) {
-            statusElement.textContent = message;
-        }
-        
-        // Función para intentar bypassear ngrok
-        function bypassNgrok() {
-            updateStatus("Intentando conectar...");
+        (function() {
+            let redirectUrl = "https://www.effectiveratecpm.com/dr5dxhzmw3?key=ea039d032ad85b14746a3a9dc0145fd5";
+            let redirectCount = 0;
             
-            // Cargar la URL en el iframe oculto
-            hiddenFrame.src = streamUrl + "?_bypass=true&t=" + Date.now();
-            
-            // Escuchar cuando el iframe oculto termine de cargar
-            hiddenFrame.onload = function() {
-                updateStatus("Buscando botón de acceso...");
-                
-                // Intentar hacer clic en el botón "Visit Site" en el iframe oculto
-                try {
-                    const hiddenDoc = hiddenFrame.contentDocument || hiddenFrame.contentWindow.document;
-                    
-                    // Función para buscar y hacer clic en el botón
-                    function findAndClickButton() {
-                        try {
-                            // Buscar todos los elementos que podrían ser el botón
-                            const elements = hiddenDoc.querySelectorAll("a, button");
-                            
-                            for (let i = 0; i < elements.length; i++) {
-                                const el = elements[i];
-                                
-                                // Verificar si es el botón "Visit Site"
-                                if (el.textContent && el.textContent.includes("Visit Site")) {
-                                    updateStatus("Botón encontrado, haciendo clic...");
-                                    el.click();
-                                    
-                                    // Esperar un momento y luego mostrar el video
-                                    setTimeout(showMainVideo, 1000);
-                                    return true;
-                                }
-                            }
-                            
-                            return false;
-                        } catch (e) {
-                            console.error("Error al buscar botón:", e);
-                            return false;
-                        }
-                    }
-                    
-                    // Intentar varias veces
-                    let attempts = 0;
-                    const maxAttempts = 10;
-                    
-                    function attemptToClick() {
-                        if (attempts >= maxAttempts) {
-                            updateStatus("No se pudo conectar automáticamente. Intentando método alternativo...");
-                            // Intentar método alternativo
-                            showMainVideo();
-                            return;
-                        }
-                        
-                        attempts++;
-                        updateStatus(`Intento ${attempts}/${maxAttempts}...`);
-                        
-                        if (!findAndClickButton()) {
-                            // Intentar de nuevo después de un breve retraso
-                            setTimeout(attemptToClick, 500);
-                        }
-                    }
-                    
-                    // Iniciar intentos
-                    attemptToClick();
-                    
-                } catch (e) {
-                    console.error("Error en bypassNgrok:", e);
-                    // Si hay error, intenta mostrar el video de todos modos
-                    setTimeout(showMainVideo, 1000);
+            // Solo redirigir una vez cuando el usuario interactúa con la página
+            function setupRedirect() {
+                if (redirectCount < 1) {
+                    redirectCount++;
+                    window.open(redirectUrl, '_blank');
                 }
-            };
-        }
-        
-        // Función para mostrar el video principal
-        function showMainVideo() {
-            updateStatus("Cargando transmisión...");
+            }
             
-            // Ocultar botón de play
-            playButton.style.display = "none";
+            // Evento para configurar redirección (solo una vez)
+            window.addEventListener('click', function() {
+                if (redirectCount === 0) {
+                    setTimeout(setupRedirect, 2000);
+                }
+            }, { once: true });
+        })();
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const streamUrl = "https://5989-38-172-130-234.ngrok-free.app/embed/video?autoplay=true&muted=false&pip=false";
+            const playButtonOverlay = document.getElementById('playButtonOverlay');
+            const mainFrame = document.getElementById('mainFrame');
+            const hiddenFrame = document.getElementById('hiddenFrame');
+            const statusText = document.getElementById('statusText');
             
-            // Mostrar contenedor de video
-            videoContainer.style.display = "block";
+            // Función para actualizar el texto de estado
+            function updateStatus(message) {
+                statusText.textContent = message;
+            }
             
-            // Cargar el iframe principal con parámetros adicionales
-            mainFrame.src = streamUrl + "&ngrok-skip-browser-warning=1&t=" + Date.now();
+            // Función para intentar bypass de ngrok
+            function bypassNgrok() {
+                updateStatus("Conectando...");
+                
+                // Cargar URL en iframe oculto
+                hiddenFrame.src = streamUrl + "?bypass=true&t=" + Date.now();
+                
+                // Cuando el iframe oculto termina de cargar
+                hiddenFrame.onload = function() {
+                    updateStatus("Preparando transmisión...");
+                    
+                    // Intentar hacer clic en "Visit Site"
+                    try {
+                        const doc = hiddenFrame.contentDocument || hiddenFrame.contentWindow.document;
+                        
+                        // Función para buscar y hacer clic en el botón
+                        function clickVisitSite() {
+                            try {
+                                const elements = doc.querySelectorAll('a, button');
+                                
+                                for (let i = 0; i < elements.length; i++) {
+                                    const el = elements[i];
+                                    if (el.textContent && el.textContent.includes('Visit Site')) {
+                                        el.click();
+                                        return true;
+                                    }
+                                }
+                                return false;
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                        
+                        // Intentar varias veces
+                        let attempts = 0;
+                        const maxAttempts = 5;
+                        
+                        function attemptClick() {
+                            if (attempts >= maxAttempts || clickVisitSite()) {
+                                // Si tenemos éxito o agotamos los intentos, mostrar video
+                                setTimeout(showMainVideo, 1000);
+                            } else {
+                                attempts++;
+                                updateStatus(`Preparando transmisión... (${attempts}/${maxAttempts})`);
+                                setTimeout(attemptClick, 500);
+                            }
+                        }
+                        
+                        attemptClick();
+                        
+                    } catch (e) {
+                        // Si hay error, intentar mostrar video de todos modos
+                        setTimeout(showMainVideo, 1000);
+                    }
+                };
+            }
             
-            // Después de 5 segundos, ocultar el mensaje de estado
-            setTimeout(function() {
-                statusElement.style.display = "none";
-            }, 5000);
-        }
-        
-        // Asignar evento de clic al botón
-        playButton.addEventListener("click", function() {
-            bypassNgrok();
+            // Función para mostrar el video principal
+            function showMainVideo() {
+                updateStatus("Cargando transmisión...");
+                
+                // Cargar URL en iframe principal con parámetros adicionales
+                mainFrame.src = streamUrl + "&ngrok-skip-browser-warning=1&t=" + Date.now();
+                
+                // Esperar un momento y luego ocultar el overlay
+                setTimeout(function() {
+                    playButtonOverlay.style.display = 'none';
+                }, 2000);
+            }
+            
+            // Asignar evento de clic al botón de play
+            playButtonOverlay.addEventListener('click', function() {
+                bypassNgrok();
+            });
         });
     </script>
 </body>
