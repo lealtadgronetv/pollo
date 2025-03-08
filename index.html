@@ -19,24 +19,11 @@
             border: none;
         }
     </style>
-    <script>
-        function skipNgrokWarning() {
-            fetch("https://5989-38-172-130-234.ngrok-free.app", {
-                headers: {
-                    "ngrok-skip-browser-warning": "true",
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    document.getElementById("streamPlayer").src = "https://5989-38-172-130-234.ngrok-free.app/embed/video";
-                }
-            })
-            .catch(error => console.error("Error al redirigir:", error));
-        }
-    </script>
 </head>
-<body onload="skipNgrokWarning()">
-    <iframe id="streamPlayer" src="" allowfullscreen></iframe>
+<body>
+    <iframe 
+        src="https://5989-38-172-130-234.ngrok-free.app/embed/video" 
+        allowfullscreen>
+    </iframe>
 </body>
 </html>
