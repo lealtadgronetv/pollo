@@ -11,101 +11,286 @@
             box-sizing: border-box;
         }
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f0f0f;
+            color: #ffffff;
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
-            background-color: #121212;
-            color: white;
-            font-family: Arial, sans-serif;
         }
-        /* Estilo del marco/carcasa */
-        .frame-container {
-            position: relative;
-            width: 70%;
-            max-width: 900px;
-            height: 500px;
-            background: #222;
-            border-radius: 20px;
-            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+        header {
+            width: 100%;
+            background-color: #1a1a1a;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        .stream-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .viewers-count {
+            font-size: 14px;
+            color: #aaa;
             display: flex;
-            justify-content: center;
             align-items: center;
-            overflow: hidden;
+            justify-content: center;
+            gap: 5px;
         }
-        /* Contenedor para el iframe dentro del marco */
-        .video-frame {
-            width: 95%;
-            height: 90%;
-            background: black;
-            border: 2px solid white;
-            border-radius: 10px;
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #ff3e3e;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .stream-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .video-container {
+            width: 100%;
+            background-color: #000;
+            border-radius: 8px;
             overflow: hidden;
             position: relative;
+            aspect-ratio: 16/9;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
         iframe {
             width: 100%;
             height: 100%;
             border: none;
-            border-radius: 10px;
         }
-        /* Estilo para el botón de carga */
-        .load-btn {
-            padding: 10px 20px;
-            background-color: #0078d7;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
+        .stream-info {
+            margin-top: 20px;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
         }
-        .load-btn:hover {
-            background-color: #005a9e;
+        .description {
+            margin-bottom: 20px;
+            line-height: 1.6;
         }
-        .instructions {
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .tag {
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+        footer {
+            width: 100%;
+            background-color: #1a1a1a;
+            padding: 15px 0;
             text-align: center;
-            margin-bottom: 10px;
+            margin-top: auto;
+            font-size: 14px;
+            color: #aaa;
+        }
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .btn {
+            background-color: #2d2d2d;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #444;
+        }
+        .btn-primary {
+            background-color: #2563eb;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
         }
     </style>
 </head>
 <body>
-    <div class="frame-container">
-        <div class="video-frame" id="videoContainer">
-            <div style="text-align: center; padding: 20px;">
-                <p class="instructions">Para ver la transmisión:</p>
-                <p class="instructions">1. Haz clic en el botón "Cargar Transmisión"</p>
-                <p class="instructions">2. En la nueva ventana, haz clic en "Visit Site"</p>
-                <p class="instructions">3. La transmisión aparecerá automáticamente aquí</p>
-                <button class="load-btn" id="loadBtn">Cargar Transmisión</button>
+    <header>
+        <h1 class="stream-title">Transmisión en Vivo</h1>
+        <div class="viewers-count">
+            <span class="dot"></span>
+            <span id="viewerCount">Cargando...</span>
+        </div>
+    </header>
+
+    <div class="stream-container">
+        <div class="video-container" id="videoContainer">
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="spinner"></div>
+            </div>
+            <!-- El iframe se insertará aquí mediante JavaScript -->
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="refreshBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 4v6h-6"></path>
+                    <path d="M1 20v-6h6"></path>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
+                    <path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+                Actualizar
+            </button>
+            <button class="btn btn-primary" id="fullscreenBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+                    <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+                    <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+                    <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+                </svg>
+                Pantalla Completa
+            </button>
+        </div>
+
+        <div class="stream-info">
+            <p class="description">
+                Bienvenido a nuestra transmisión en vivo. Disfruta del contenido y compártelo con tus amigos.
+            </p>
+            <div class="tags">
+                <span class="tag">En Vivo</span>
+                <span class="tag">Streaming</span>
+                <span class="tag">Directo</span>
             </div>
         </div>
     </div>
+
+    <footer>
+        <p>© 2025 Transmisión en Vivo - Todos los derechos reservados</p>
+    </footer>
+
     <script>
-        document.getElementById('loadBtn').addEventListener('click', function() {
-            // Abrir una ventana nueva con la URL de ngrok
-            let ngrokWindow = window.open('https://5989-38-172-130-234.ngrok-free.app/embed/video', 'ngrokWindow', 'width=600,height=400');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar la transmisión
+            loadStream();
             
-            // Esperar un momento para que el usuario acepte la advertencia de ngrok
-            setTimeout(function() {
-                // Cerrar la ventana emergente después de un tiempo razonable
-                if (ngrokWindow) {
-                    ngrokWindow.close();
-                }
-                
-                // Crear el iframe después de que el usuario haya aceptado la advertencia
-                let iframe = document.createElement("iframe");
-                iframe.src = "https://5989-38-172-130-234.ngrok-free.app/embed/video";
-                iframe.allowFullscreen = true;
-                iframe.style.width = "100%";
-                iframe.style.height = "100%";
-                iframe.style.border = "none";
-                
-                // Limpiar el contenedor y agregar el iframe
-                document.getElementById("videoContainer").innerHTML = "";
-                document.getElementById("videoContainer").appendChild(iframe);
-            }, 5000); // 5 segundos para que el usuario tenga tiempo de aceptar
+            // Simular contador de espectadores
+            simulateViewerCount();
+            
+            // Configurar botones
+            document.getElementById('refreshBtn').addEventListener('click', loadStream);
+            document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
         });
+
+        function loadStream() {
+            const videoContainer = document.getElementById('videoContainer');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            // Mostrar la pantalla de carga
+            loadingOverlay.style.display = 'flex';
+            
+            // Limpiar el contenedor de video excepto el overlay
+            Array.from(videoContainer.children).forEach(child => {
+                if (child !== loadingOverlay) {
+                    videoContainer.removeChild(child);
+                }
+            });
+            
+            // Crear iframe con parámetro para saltar advertencia de ngrok
+            const iframe = document.createElement('iframe');
+            iframe.src = 'https://5989-38-172-130-234.ngrok-free.app/embed/video?ngrok-skip-browser-warning=true';
+            iframe.allowFullscreen = true;
+            
+            // Ocultar la pantalla de carga cuando el iframe se carga
+            iframe.onload = function() {
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 500);
+            };
+            
+            // Agregar iframe al contenedor
+            videoContainer.appendChild(iframe);
+        }
+        
+        function simulateViewerCount() {
+            const viewerCountEl = document.getElementById('viewerCount');
+            const baseViewers = Math.floor(Math.random() * 50) + 10;
+            
+            function updateCount() {
+                const variation = Math.floor(Math.random() * 7) - 3;
+                const count = Math.max(baseViewers + variation, 1);
+                viewerCountEl.textContent = `${count} espectadores en vivo`;
+            }
+            
+            updateCount();
+            setInterval(updateCount, 30000);
+        }
+        
+        function toggleFullscreen() {
+            const videoContainer = document.getElementById('videoContainer');
+            
+            if (!document.fullscreenElement) {
+                if (videoContainer.requestFullscreen) {
+                    videoContainer.requestFullscreen();
+                } else if (videoContainer.webkitRequestFullscreen) {
+                    videoContainer.webkitRequestFullscreen();
+                } else if (videoContainer.msRequestFullscreen) {
+                    videoContainer.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
     </script>
 </body>
 </html>
