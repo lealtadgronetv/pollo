@@ -96,20 +96,30 @@
     <div class="footer">© 2025 - Todos los derechos reservados</div>
 
     <script>
-        window.onload = function() {
+        window.onload = async function() {
             const videoContainer = document.getElementById("video-container");
+            const videoURL = "https://5989-38-172-130-234.ngrok-free.app/embed/video";
 
-            // Crear el iframe dinámicamente para evitar el bloqueo de Ngrok
-            const iframe = document.createElement("iframe");
-            iframe.src = "https://5989-38-172-130-234.ngrok-free.app/embed/video?ngrok-skip-browser-warning=true";
-            iframe.width = "100%";
-            iframe.height = "100%";
-            iframe.style.border = "none";
-            iframe.allowFullscreen = true;
+            try {
+                // Hacemos una petición previa para saltar la advertencia de Ngrok
+                await fetch(videoURL, { 
+                    method: "GET",
+                    headers: { "ngrok-skip-browser-warning": "true" }
+                });
 
-            // Limpiar el contenedor y agregar el iframe
-            videoContainer.innerHTML = "";
-            videoContainer.appendChild(iframe);
+                // Si la petición es exitosa, insertamos el iframe
+                const iframe = document.createElement("iframe");
+                iframe.src = videoURL + "?ngrok-skip-browser-warning=true";
+                iframe.width = "100%";
+                iframe.height = "100%";
+                iframe.style.border = "none";
+                iframe.allowFullscreen = true;
+
+                videoContainer.innerHTML = "";
+                videoContainer.appendChild(iframe);
+            } catch (error) {
+                videoContainer.innerHTML = "<p>Error al cargar la transmisión en vivo.</p>";
+            }
         };
     </script>
 
