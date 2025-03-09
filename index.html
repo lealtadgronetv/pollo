@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transmisión en Vivo</title>
+    <link href="https://vjs.zencdn.net/8.3.0/video-js.css" rel="stylesheet">
+    <script src="https://vjs.zencdn.net/8.3.0/video.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -12,15 +14,55 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            flex-direction: column;
         }
-        iframe {
+        video {
             width: 100vw;
             height: 100vh;
+        }
+        button {
+            position: absolute;
+            top: 20px;
+            padding: 10px;
+            background: red;
+            color: white;
             border: none;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <iframe src="https://5989-38-172-130-234.ngrok-free.app/embed/video" allowfullscreen></iframe>
+    <button id="loadStream">Cargar Transmisión</button>
+    <video id="stream" class="video-js vjs-default-skin" controls autoplay></video>
+
+    <script>
+        function loadVideo() {
+            const videoElement = document.getElementById("stream");
+            videoElement.innerHTML = `
+                <source src="https://5989-38-172-130-234.ngrok-free.app/hls/stream.m3u8" type="application/x-mpegURL">
+            `;
+            var player = videojs('stream');
+            player.on('error', function() {
+                alert("Error al cargar la transmisión. Verifica que el servidor está activo.");
+            });
+        }
+
+        async function checkStream() {
+            try {
+                const response = await fetch("https://5989-38-172-130-234.ngrok-free.app/hls/stream.m3u8", {
+                    headers: { "ngrok-skip-browser-warning": "true" }
+                });
+                if (response.ok) {
+                    loadVideo();
+                } else {
+                    alert("El stream no está disponible.");
+                }
+            } catch (error) {
+                alert("Error al conectar con el servidor.");
+            }
+        }
+
+        document.getElementById("loadStream").addEventListener("click", checkStream);
+    </script>
 </body>
 </html>
