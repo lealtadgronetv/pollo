@@ -21,6 +21,16 @@
     </style>
 </head>
 <body>
-    <iframe src="https://5989-38-172-130-234.ngrok-free.app/embed"></iframe>
+    <script>
+        // Crea un iframe con el header para saltar la advertencia
+        let iframe = document.createElement("iframe");
+        iframe.src = "https://5989-38-172-130-234.ngrok-free.app/embed";
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+        document.body.appendChild(iframe);
+
+        // Enviar la cabecera especial para saltar la advertencia
+        fetch(iframe.src, { headers: { "ngrok-skip-browser-warning": "true" } });
+    </script>
 </body>
 </html>
