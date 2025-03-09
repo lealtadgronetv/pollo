@@ -4,23 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Owncast</title>
-    <style>
-        body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #000;
-        }
-        iframe {
-            width: 90vw;
-            height: 90vh;
-            border: none;
-        }
-    </style>
+    <script>
+        window.onload = function() {
+            fetch("https://5989-38-172-130-234.ngrok-free.app", {
+                headers: {
+                    "ngrok-skip-browser-warning": "true"
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = "https://5989-38-172-130-234.ngrok-free.app";
+                }
+            })
+            .catch(error => console.error("Error al cargar Owncast:", error));
+        };
+    </script>
 </head>
 <body>
-    <iframe src="https://5989-38-172-130-234.ngrok-free.app" allowfullscreen></iframe>
+    <h2>Redirigiendo a Owncast...</h2>
 </body>
 </html>
