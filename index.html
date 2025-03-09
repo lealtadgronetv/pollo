@@ -6,21 +6,12 @@
     <title>Owncast</title>
     <script>
         window.onload = function() {
-            fetch("https://5989-38-172-130-234.ngrok-free.app", {
-                headers: {
-                    "ngrok-skip-browser-warning": "true"
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = "https://5989-38-172-130-234.ngrok-free.app";
-                }
-            })
-            .catch(error => console.error("Error al cargar Owncast:", error));
+            window.location.href = "https://5989-38-172-130-234.ngrok-free.app/?ngrok-skip-browser-warning=true";
         };
     </script>
 </head>
 <body>
     <h2>Redirigiendo a Owncast...</h2>
+    <p>Si no eres redirigido automáticamente, <a href="https://5989-38-172-130-234.ngrok-free.app/?ngrok-skip-browser-warning=true">haz clic aquí</a>.</p>
 </body>
 </html>
