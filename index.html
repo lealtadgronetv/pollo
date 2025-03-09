@@ -3,21 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Owncast - Solo Video</title>
+    <title>Transmisión en Vivo</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        #video-container {
+            display: none; /* Ocultar el video al inicio */
+        }
+    </style>
     <script>
         window.onload = function() {
-            // Abre la URL en una nueva pestaña oculta (depende del navegador y configuración)
-            let hiddenWindow = window.open("https://f570-38-172-130-234.ngrok-free.app/embed/video?ngrok-skip-browser-warning=true", "_blank");
-            
-            // Si el navegador bloquea la nueva ventana, muestra un mensaje
-            if (!hiddenWindow) {
+            // Abrir nueva ventana con la transmisión
+            let nuevaVentana = window.open(location.href, "_blank", "width=800,height=600");
+
+            if (nuevaVentana) {
+                window.close(); // Cerrar la primera ventana
+            } else {
+                // Si el navegador bloquea la ventana, mostrar alerta
                 alert("Permite ventanas emergentes para la transmisión en vivo.");
             }
+
+            // Simular carga antes de mostrar el video
+            setTimeout(() => {
+                document.getElementById("loading").style.display = "none";
+                document.getElementById("video-container").style.display = "block";
+            }, 3000); // Espera 3 segundos antes de mostrar el video
         };
     </script>
 </head>
 <body>
-    <h2>Transmisión en Vivo</h2>
-    <p>La transmisión se está abriendo en una nueva ventana.</p>
+    <div id="loading">
+        <h2>Cargando transmisión...</h2>
+    </div>
+
+    <div id="video-container">
+        <iframe src="https://f570-38-172-130-234.ngrok-free.app/embed/video?ngrok-skip-browser-warning=true" 
+                width="800" height="450" allowfullscreen>
+        </iframe>
+    </div>
 </body>
 </html>
