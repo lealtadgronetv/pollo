@@ -21,14 +21,6 @@
     </style>
 </head>
 <body>
-    <script>
-        // Redirigir directamente al stream sin mostrar la advertencia
-        const url = "https://5989-38-172-130-234.ngrok-free.app/embed/video";
-        fetch(url, { 
-            headers: { "ngrok-skip-browser-warning": "true" } 
-        })
-        .then(() => { window.location.href = url; })
-        .catch(() => { document.body.innerHTML = "<h2 style='color:white;'>Error al cargar la transmisión.</h2>"; });
-    </script>
+    <iframe src="https://5989-38-172-130-234.ngrok-free.app/embed/video" allowfullscreen></iframe>
 </body>
 </html>
