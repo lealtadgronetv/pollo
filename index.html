@@ -3,55 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transmisión en Vivo - Básico</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: black;
-        }
-        .video-container {
-            width: 800px;
-            height: 450px;
-            max-width: 90vw;
-            max-height: 80vh;
-        }
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
+    <title>Owncast - Solo Video</title>
+    <script>
+        window.onload = function() {
+            // Abre la URL en una nueva pestaña oculta (depende del navegador y configuración)
+            let hiddenWindow = window.open("https://f570-38-172-130-234.ngrok-free.app/embed/video?ngrok-skip-browser-warning=true", "_blank");
+            
+            // Si el navegador bloquea la nueva ventana, muestra un mensaje
+            if (!hiddenWindow) {
+                alert("Permite ventanas emergentes para la transmisión en vivo.");
+            }
+        };
+    </script>
 </head>
 <body>
-    <div class="video-container" id="videoContainer">
-        <iframe 
-            src="https://a051-38-172-130-234.ngrok-free.app/embed/video?ngrok-skip-browser-warning=true"
-            allowfullscreen>
-        </iframe>
-    </div>
-
-    <script>
-        // Función alternativa: usar fetch primero para aceptar las cookies de ngrok
-        document.addEventListener('DOMContentLoaded', function() {
-            // Intentar cargar la URL directamente primero para establecer cookies
-            fetch('https://a051-38-172-130-234.ngrok-free.app?ngrok-skip-browser-warning=true', {
-                method: 'GET',
-                mode: 'no-cors' // Esto permite la solicitud sin importar CORS
-            }).then(function() {
-                // Recargar el iframe después de que fetch haya intentado establecer cookies
-                setTimeout(function() {
-                    const iframe = document.querySelector('iframe');
-                    iframe.src = iframe.src;
-                }, 1000);
-            }).catch(function(error) {
-                console.log('Error en fetch:', error);
-            });
-        });
-    </script>
+    <h2>Transmisión en Vivo</h2>
+    <p>La transmisión se está abriendo en una nueva ventana.</p>
 </body>
 </html>
