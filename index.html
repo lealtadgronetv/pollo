@@ -58,12 +58,6 @@
             border: 2px solid white;
         }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
         .ad-space {
             width: 15%;
             height: 50vh;
@@ -92,14 +86,32 @@
     <div class="content">
         <div class="ad-space left-ad">📢 Anuncio Izquierdo</div>
 
-        <div class="video-container">
-            <iframe src="https://5989-38-172-130-234.ngrok-free.app/embed/video?ngrok-skip-browser-warning=true" allowfullscreen></iframe>
+        <div class="video-container" id="video-container">
+            <p>Cargando transmisión en vivo...</p>
         </div>
 
         <div class="ad-space right-ad">📢 Anuncio Derecho</div>
     </div>
 
     <div class="footer">© 2025 - Todos los derechos reservados</div>
+
+    <script>
+        window.onload = function() {
+            const videoContainer = document.getElementById("video-container");
+
+            // Crear el iframe dinámicamente para evitar el bloqueo de Ngrok
+            const iframe = document.createElement("iframe");
+            iframe.src = "https://5989-38-172-130-234.ngrok-free.app/embed/video?ngrok-skip-browser-warning=true";
+            iframe.width = "100%";
+            iframe.height = "100%";
+            iframe.style.border = "none";
+            iframe.allowFullscreen = true;
+
+            // Limpiar el contenedor y agregar el iframe
+            videoContainer.innerHTML = "";
+            videoContainer.appendChild(iframe);
+        };
+    </script>
 
 </body>
 </html>
