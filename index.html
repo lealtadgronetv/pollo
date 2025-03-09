@@ -3,15 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Owncast</title>
-    <script>
-        window.onload = function() {
-            window.location.href = "https://5989-38-172-130-234.ngrok-free.app/?ngrok-skip-browser-warning=true";
-        };
-    </script>
+    <title>Owncast - Solo Video</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+        iframe {
+            width: 80vw;
+            height: 80vh;
+            border: none;
+        }
+    </style>
 </head>
 <body>
-    <h2>Redirigiendo a Owncast...</h2>
-    <p>Si no eres redirigido automáticamente, <a href="https://5989-38-172-130-234.ngrok-free.app/?ngrok-skip-browser-warning=true">haz clic aquí</a>.</p>
+    <iframe src="https://5989-38-172-130-234.ngrok-free.app/embed/video?ngrok-skip-browser-warning=true" allowfullscreen></iframe>
 </body>
 </html>
