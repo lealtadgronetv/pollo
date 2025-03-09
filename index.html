@@ -10,7 +10,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             display: flex;
             justify-content: center;
@@ -20,7 +19,6 @@
             color: white;
             font-family: Arial, sans-serif;
         }
-
         /* Estilo del marco/carcasa */
         .frame-container {
             position: relative;
@@ -35,7 +33,6 @@
             align-items: center;
             overflow: hidden;
         }
-
         /* Contenedor para el iframe dentro del marco */
         .video-frame {
             width: 95%;
@@ -44,24 +41,33 @@
             border: 2px solid white;
             border-radius: 10px;
             overflow: hidden;
+            position: relative;
         }
-
         iframe {
             width: 100%;
             height: 100%;
             border: none;
             border-radius: 10px;
         }
+        /* Capa que oculta cualquier mensaje o elemento no deseado */
+        .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px; /* Ajusta según la altura del mensaje "Visit Site" */
+            background-color: black;
+            z-index: 10;
+            pointer-events: none; /* Permite interactuar con el iframe debajo */
+        }
     </style>
 </head>
 <body>
-
     <div class="frame-container">
         <div class="video-frame" id="videoContainer">
             <p>Cargando transmisión...</p>
         </div>
     </div>
-
     <script>
         window.onload = function() {
             // Crear el iframe dinámicamente
@@ -71,12 +77,18 @@
             iframe.style.width = "100%";
             iframe.style.height = "100%";
             iframe.style.border = "none";
-
-            // Agregar el iframe al contenedor
+            
+            // Limpiar el contenedor
             document.getElementById("videoContainer").innerHTML = "";
+            
+            // Agregar el iframe al contenedor
             document.getElementById("videoContainer").appendChild(iframe);
+            
+            // Crear y agregar una capa superpuesta para ocultar mensajes no deseados
+            let overlay = document.createElement("div");
+            overlay.className = "overlay";
+            document.getElementById("videoContainer").appendChild(overlay);
         };
     </script>
-
 </body>
 </html>
