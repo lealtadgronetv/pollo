@@ -57,10 +57,26 @@
 <body>
 
     <div class="frame-container">
-        <div class="video-frame">
-            <iframe src="https://5989-38-172-130-234.ngrok-free.app/embed/video?ngrok-skip-browser-warning=true" allowfullscreen></iframe>
+        <div class="video-frame" id="videoContainer">
+            <p>Cargando transmisión...</p>
         </div>
     </div>
+
+    <script>
+        window.onload = function() {
+            // Crear el iframe dinámicamente
+            let iframe = document.createElement("iframe");
+            iframe.src = "https://5989-38-172-130-234.ngrok-free.app/embed/video";
+            iframe.allowFullscreen = true;
+            iframe.style.width = "100%";
+            iframe.style.height = "100%";
+            iframe.style.border = "none";
+
+            // Agregar el iframe al contenedor
+            document.getElementById("videoContainer").innerHTML = "";
+            document.getElementById("videoContainer").appendChild(iframe);
+        };
+    </script>
 
 </body>
 </html>
