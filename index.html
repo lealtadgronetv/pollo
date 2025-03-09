@@ -13,115 +13,54 @@
 
         body {
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
             background-color: #121212;
             color: white;
             font-family: Arial, sans-serif;
         }
 
-        .header, .footer {
-            width: 100%;
-            text-align: center;
-            padding: 10px;
-            background: #1E1E1E;
-            position: absolute;
-        }
-
-        .header {
-            top: 0;
-        }
-
-        .footer {
-            bottom: 0;
-        }
-
-        .content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-grow: 1;
-            width: 80%;
-            max-width: 1200px;
-            padding: 20px;
-        }
-
-        .video-container {
+        /* Estilo del marco/carcasa */
+        .frame-container {
+            position: relative;
             width: 70%;
-            height: 50vh;
+            max-width: 900px;
+            height: 500px;
+            background: #222;
+            border-radius: 20px;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Contenedor para el iframe dentro del marco */
+        .video-frame {
+            width: 95%;
+            height: 90%;
             background: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             border: 2px solid white;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
-        .ad-space {
-            width: 15%;
-            height: 50vh;
-            background: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 14px;
-            text-align: center;
-        }
-
-        .left-ad {
-            margin-right: 20px;
-        }
-
-        .right-ad {
-            margin-left: 20px;
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">🔴 EN VIVO | Transmisión Exclusiva</div>
-
-    <div class="content">
-        <div class="ad-space left-ad">📢 Anuncio Izquierdo</div>
-
-        <div class="video-container" id="video-container">
-            <p>Cargando transmisión en vivo...</p>
+    <div class="frame-container">
+        <div class="video-frame">
+            <iframe src="https://5989-38-172-130-234.ngrok-free.app/embed/video?ngrok-skip-browser-warning=true" allowfullscreen></iframe>
         </div>
-
-        <div class="ad-space right-ad">📢 Anuncio Derecho</div>
     </div>
-
-    <div class="footer">© 2025 - Todos los derechos reservados</div>
-
-    <script>
-        window.onload = async function() {
-            const videoContainer = document.getElementById("video-container");
-            const videoURL = "https://5989-38-172-130-234.ngrok-free.app/embed/video";
-
-            try {
-                // Hacemos una petición previa para saltar la advertencia de Ngrok
-                await fetch(videoURL, { 
-                    method: "GET",
-                    headers: { "ngrok-skip-browser-warning": "true" }
-                });
-
-                // Si la petición es exitosa, insertamos el iframe
-                const iframe = document.createElement("iframe");
-                iframe.src = videoURL + "?ngrok-skip-browser-warning=true";
-                iframe.width = "100%";
-                iframe.height = "100%";
-                iframe.style.border = "none";
-                iframe.allowFullscreen = true;
-
-                videoContainer.innerHTML = "";
-                videoContainer.appendChild(iframe);
-            } catch (error) {
-                videoContainer.innerHTML = "<p>Error al cargar la transmisión en vivo.</p>";
-            }
-        };
-    </script>
 
 </body>
 </html>
