@@ -49,46 +49,63 @@
             border: none;
             border-radius: 10px;
         }
-        /* Capa que oculta cualquier mensaje o elemento no deseado */
-        .overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 30px; /* Ajusta según la altura del mensaje "Visit Site" */
-            background-color: black;
-            z-index: 10;
-            pointer-events: none; /* Permite interactuar con el iframe debajo */
+        /* Estilo para el botón de carga */
+        .load-btn {
+            padding: 10px 20px;
+            background-color: #0078d7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .load-btn:hover {
+            background-color: #005a9e;
+        }
+        .instructions {
+            text-align: center;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
     <div class="frame-container">
         <div class="video-frame" id="videoContainer">
-            <p>Cargando transmisión...</p>
+            <div style="text-align: center; padding: 20px;">
+                <p class="instructions">Para ver la transmisión:</p>
+                <p class="instructions">1. Haz clic en el botón "Cargar Transmisión"</p>
+                <p class="instructions">2. En la nueva ventana, haz clic en "Visit Site"</p>
+                <p class="instructions">3. La transmisión aparecerá automáticamente aquí</p>
+                <button class="load-btn" id="loadBtn">Cargar Transmisión</button>
+            </div>
         </div>
     </div>
     <script>
-        window.onload = function() {
-            // Crear el iframe dinámicamente
-            let iframe = document.createElement("iframe");
-            iframe.src = "https://5989-38-172-130-234.ngrok-free.app/embed/video";
-            iframe.allowFullscreen = true;
-            iframe.style.width = "100%";
-            iframe.style.height = "100%";
-            iframe.style.border = "none";
+        document.getElementById('loadBtn').addEventListener('click', function() {
+            // Abrir una ventana nueva con la URL de ngrok
+            let ngrokWindow = window.open('https://5989-38-172-130-234.ngrok-free.app/embed/video', 'ngrokWindow', 'width=600,height=400');
             
-            // Limpiar el contenedor
-            document.getElementById("videoContainer").innerHTML = "";
-            
-            // Agregar el iframe al contenedor
-            document.getElementById("videoContainer").appendChild(iframe);
-            
-            // Crear y agregar una capa superpuesta para ocultar mensajes no deseados
-            let overlay = document.createElement("div");
-            overlay.className = "overlay";
-            document.getElementById("videoContainer").appendChild(overlay);
-        };
+            // Esperar un momento para que el usuario acepte la advertencia de ngrok
+            setTimeout(function() {
+                // Cerrar la ventana emergente después de un tiempo razonable
+                if (ngrokWindow) {
+                    ngrokWindow.close();
+                }
+                
+                // Crear el iframe después de que el usuario haya aceptado la advertencia
+                let iframe = document.createElement("iframe");
+                iframe.src = "https://5989-38-172-130-234.ngrok-free.app/embed/video";
+                iframe.allowFullscreen = true;
+                iframe.style.width = "100%";
+                iframe.style.height = "100%";
+                iframe.style.border = "none";
+                
+                // Limpiar el contenedor y agregar el iframe
+                document.getElementById("videoContainer").innerHTML = "";
+                document.getElementById("videoContainer").appendChild(iframe);
+            }, 5000); // 5 segundos para que el usuario tenga tiempo de aceptar
+        });
     </script>
 </body>
 </html>
