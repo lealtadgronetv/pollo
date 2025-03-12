@@ -3,42 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de Video</title>
+    <title>Partidos en Vivo</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         body {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
             background-color: black;
+            color: white;
+        }
+        .ads {
+            width: 728px;
+            height: 90px;
+            margin: 10px 0;
+            background: gray;
+            text-align: center;
+            line-height: 90px;
+        }
+        .partidos {
+            margin: 20px;
+        }
+        .partidos a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            margin: 5px 0;
         }
         video {
             width: 80%;
             max-width: 800px;
             border: 2px solid white;
             border-radius: 10px;
+            display: none;
         }
     </style>
 </head>
 <body>
+    <div class="ads">Publicidad Superior</div>
+    
+    <div class="partidos">
+        <h2>Partidos del Día</h2>
+        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_ARSENAL_PSV')">15:00 - Arsenal vs PSV</a>
+        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_ASTON_BRUGGE')">15:00 - Aston Villa vs Club Brugge</a>
+        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_STOKE_BLACKBURN')">15:00 - Stoke City vs Blackburn Rovers</a>
+        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_PLATENSE_QUILMES')">15:00 - Platense vs Argentino Quilmes</a>
+        <a href="#" onclick="cargarPartido('https://yw1hbwfy.fubohd.com/espn/tracks-v1a1/mono.m3u8?token=5c4f74c1c20887d4faf740f2e16f0f287a5ef793-e3-1741841064-1741805064')">15:00 - Atlético Madrid vs Real Madrid</a>
+        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_MADUREIRA_SAMPAIO')">15:45 - Madureira vs Sampaio Corrêa RJ</a>
+        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_AMERICA_PUEBLA')">16:45 - América vs Puebla</a>
+        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_TRINIDAD_PANAMA')">16:50 - Trinidad y Tobago vs Panamá</a>
+        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_VITORIA_NAUTICO')">17:00 - Vitória vs Náutico</a>
+        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_CERRO_MELGAR')">17:00 - Cerro Porteño vs Melgar</a>
+    </div>
+    
     <video id="video" controls></video>
+    
+    <div class="ads">Publicidad Inferior</div>
+    
     <script>
-        const video = document.getElementById('video');
-        const videoSrc = "https://u4c5a.pricesaskeloadsc.com/espn/tracks-v1a1/mono.m3u8?token=fbfc2d868a13484c02a57dedc52ec07492048cc8-77-1741828464-1741796064";
-        
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(videoSrc);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                video.play();
-            });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            video.src = videoSrc;
-            video.addEventListener('loadedmetadata', () => {
-                video.play();
-            });
+        function cargarPartido(url) {
+            const video = document.getElementById('video');
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    video.style.display = 'block';
+                    video.play();
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+                video.style.display = 'block';
+                video.addEventListener('loadedmetadata', () => {
+                    video.play();
+                });
+            }
         }
     </script>
 </body>
