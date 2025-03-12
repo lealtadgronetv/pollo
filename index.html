@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partidos en Vivo</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- NO BLOQUEAR ADS -->
+    <meta name="referrer" content="no-referrer-when-downgrade">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,6 +38,17 @@
             margin: 20px auto;
             text-align: center;
             overflow: hidden;
+            min-height: 100px;
+            background-color: rgba(255,255,255,0.05);
+            border: 1px dashed #444;
+            padding: 5px;
+        }
+        
+        .ad-banner {
+            width: 100%;
+            margin: 0 auto;
+            display: block;
+            text-align: center;
         }
         
         .partidos {
@@ -109,6 +122,17 @@
             font-size: 24px;
             cursor: pointer;
         }
+        
+        iframe {
+            border: 0;
+        }
+        
+        /* Espacios para anuncios directos */
+        .ad-direct {
+            width: 100%;
+            margin: 20px auto;
+            min-height: 90px;
+        }
     </style>
 </head>
 <body>
@@ -117,18 +141,26 @@
             <h1>Partidos en Vivo</h1>
         </header>
         
-        <!-- Anuncio Superior -->
-        <div class="ad-container">
-            <script type="text/javascript">
-                atOptions = {
-                    'key': 'b330ccd204185aee9ef640adccf896d2',
-                    'format': 'iframe',
-                    'height': 90,
-                    'width': 728,
-                    'params': {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
+        <!-- Anuncio Superior (banner) -->
+        <div class="ad-container" id="ad-top">
+            <!-- ANUNCIO BANNER SUPERIOR -->
+            <div class="ad-banner">
+                <script type="text/javascript">
+                    atOptions = {
+                        'key': 'b330ccd204185aee9ef640adccf896d2',
+                        'format': 'iframe',
+                        'height': 90,
+                        'width': 728,
+                        'params': {}
+                    };
+                    document.write('<scr' + 'ipt type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></scr' + 'ipt>');
+                </script>
+            </div>
+        </div>
+        
+        <!-- Anuncio Directo -->
+        <div class="ad-direct">
+            <script type='text/javascript' src='//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js'></script>
         </div>
         
         <div class="partidos">
@@ -193,15 +225,20 @@
             </div>
         </div>
         
-        <!-- Anuncio Central -->
+        <!-- Anuncio Container Central -->
         <div class="ad-container">
             <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
             <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
         </div>
         
+        <!-- Anuncio Directo (adicional) -->
+        <div class="ad-container">
+            <iframe src="https://www.effectiveratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd" width="100%" height="250" frameborder="0" scrolling="no"></iframe>
+        </div>
+        
         <!-- Anuncio Inferior -->
         <div class="ad-container">
-            <script type='text/javascript' src='//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js'></script>
+            <script type='text/javascript' src='//pl26063307.effectiveratecpm.com/19/09/91/1909913ee893cee324321a2b56c090fa.js'></script>
         </div>
         
         <footer>
@@ -209,16 +246,67 @@
         </footer>
     </div>
     
-    <!-- Popup para anuncios -->
-    <div class="ad-popup" id="ad-popup">
-        <div class="popup-close" onclick="cerrarPopup()">&times;</div>
-        <iframe id="popup-frame" width="100%" height="250" frameborder="0"></iframe>
-    </div>
-    
     <script>
         // Variable para mantener la instancia actual de HLS
         let currentHls = null;
         let lastActivePartido = null;
+        
+        // Aseguramos que los bloqueadores de anuncios no afecten
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarTodosLosAnuncios();
+            detectarBloqueadorAnuncios();
+        });
+        
+        function cargarTodosLosAnuncios() {
+            // Reintentar cargar los anuncios
+            setTimeout(function() {
+                // Primera carga de anuncios banner
+                var script1 = document.createElement('script');
+                script1.src = "//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js";
+                document.getElementById('ad-top').appendChild(script1);
+                
+                // Cargar anuncio popunder
+                var script2 = document.createElement('script');
+                script2.src = "//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js";
+                document.body.appendChild(script2);
+            }, 1000);
+        }
+        
+        function detectarBloqueadorAnuncios() {
+            // Comprobar si los anuncios están bloqueados
+            setTimeout(function() {
+                const adContainers = document.querySelectorAll('.ad-container');
+                let adsVisible = false;
+                
+                adContainers.forEach(container => {
+                    // Si el contenedor tiene contenido visible, hay anuncios
+                    if (container.offsetHeight > 10 && container.innerHTML.trim() !== '') {
+                        adsVisible = true;
+                    }
+                });
+                
+                if (!adsVisible) {
+                    console.log("Posible bloqueador de anuncios detectado");
+                    // Intentar cargar alternativas
+                    cargarAnunciosAlternativos();
+                }
+            }, 3000);
+        }
+        
+        function cargarAnunciosAlternativos() {
+            // Intenta con otra red de anuncios o método alternativo
+            const adContainers = document.querySelectorAll('.ad-container');
+            
+            adContainers.forEach(container => {
+                // Crear un iframe directo como alternativa
+                const iframe = document.createElement('iframe');
+                iframe.src = "https://www.effectiveratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd";
+                iframe.width = "100%";
+                iframe.height = "250";
+                iframe.frameBorder = "0";
+                container.appendChild(iframe);
+            });
+        }
         
         function cargarPartido(elemento, url) {
             // Restablecer estilo del partido anterior
@@ -242,8 +330,11 @@
             // Obtener el elemento de video dentro del partido
             const video = elemento.querySelector('video');
             
-            // Mostrar un anuncio popup aleatorio
-            mostrarPopupAleatorio();
+            // Intentar cargar popunders antes de reproducir el video
+            cargarPopunder();
+            
+            // Activar otros tipos de anuncios
+            activarAnunciosPorClick();
             
             // Reproducir el video
             if (Hls.isSupported()) {
@@ -275,60 +366,65 @@
             
             // Desplazarse hasta el partido seleccionado
             elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            // Cargar anuncio popunder
-            cargarPopunder();
         }
         
-        function mostrarPopupAleatorio() {
-            const popup = document.getElementById('ad-popup');
-            const frame = document.getElementById('popup-frame');
-            
-            // Lista de anuncios disponibles
-            const anuncios = [
-                '//pl26063307.effectiveratecpm.com/19/09/91/1909913ee893cee324321a2b56c090fa.js',
-                'https://www.effectiveratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd'
-            ];
-            
-            // Seleccionar anuncio aleatorio
-            const anuncioAleatorio = anuncios[Math.floor(Math.random() * anuncios.length)];
-            
-            // Mostrar popup después de un breve retraso
-            setTimeout(() => {
-                frame.src = anuncioAleatorio;
-                popup.style.display = 'block';
-                
-                // Cerrar automáticamente después de 10 segundos
-                setTimeout(cerrarPopup, 10000);
-            }, 1000);
-        }
+       function cargarPopunder() {
+    // Método 1: Cargar script de popunder
+    try {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = '//pl26063307.effectiveratecpm.com/19/09/91/1909913ee893cee324321a2b56c090fa.js';
+        document.body.appendChild(script);
+    } catch (e) {
+        console.error("Error al cargar popunder:", e);
+    }
+    
+    // Método 2: Cargar iframe popunder
+    try {
+        var iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = 'https://www.effectiveratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd';
+        document.body.appendChild(iframe);
+    } catch (e) {
+        console.log("Error al cargar iframe popunder");
+    }
+}
+
+function activarAnunciosPorClick() {
+    // Activar todos los anuncios con un solo clic
+    document.querySelectorAll('.ad-container').forEach(container => {
+        // Forzar carga de anuncios
+        container.style.opacity = '0.99';
+        setTimeout(() => {
+            container.style.opacity = '1';
+        }, 100);
+    });
+    
+    // Intentar cargar scripts nuevamente
+    try {
+        // Cargar script container
+        var scriptContainer = document.createElement('script');
+        scriptContainer.async = true;
+        scriptContainer.setAttribute('data-cfasync', 'false');
+        scriptContainer.src = '//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js';
+        document.body.appendChild(scriptContainer);
         
-        function cerrarPopup() {
-            document.getElementById('ad-popup').style.display = 'none';
-        }
-        
-        function cargarPopunder() {
-            // Cargar script de popunder
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = '//pl26063307.effectiveratecpm.com/19/09/91/1909913ee893cee324321a2b56c090fa.js';
-            document.body.appendChild(script);
-        }
-        
-        // Inicializar anuncios al cargar la página
-        window.addEventListener('load', function() {
-            // Pre-cargar scripts de anuncios
-            const scripts = [
-                '//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js'
-            ];
-            
-            scripts.forEach(src => {
-                const script = document.createElement('script');
-                script.type = 'text/javascript';
-                script.src = src;
-                document.body.appendChild(script);
-            });
-        });
-    </script>
+        // Cargar otro script de anuncios
+        var scriptAds = document.createElement('script');
+        scriptAds.type = 'text/javascript';
+        scriptAds.src = '//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js';
+        document.body.appendChild(scriptAds);
+    } catch (e) {
+        console.error("Error al cargar scripts adicionales:", e);
+    }
+}
+
+// Inicializar la página
+window.addEventListener('load', function() {
+    cargarTodosLosAnuncios();
+    // Cargar anuncios después de 3 segundos para evitar bloqueos
+    setTimeout(activarAnunciosPorClick, 3000);
+});
+</script>
 </body>
 </html>
