@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Owncast - Solo Video</title>
+    <title>Reproductor de Video</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         body {
             display: flex;
@@ -11,20 +12,34 @@
             align-items: center;
             height: 100vh;
             background-color: black;
-            color: white;
-            text-align: center;
-            font-family: Arial, sans-serif;
+        }
+        video {
+            width: 80%;
+            max-width: 800px;
+            border: 2px solid white;
+            border-radius: 10px;
         }
     </style>
-    <script>
-        window.onload = function() {
-            setTimeout(function() {
-                window.location.href = " https://f570-38-172-130-234.ngrok-free.app/embed/video?ngrok-skip-browser-warning=true";
-            }, 3000); // 3 segundos de pantalla de carga antes de redirigir
-        };
-    </script>
 </head>
 <body>
-    <h2>Cargando transmisión...</h2>
+    <video id="video" controls></video>
+    <script>
+        const video = document.getElementById('video');
+        const videoSrc = "https://u4c5a.pricesaskeloadsc.com/espn/tracks-v1a1/mono.m3u8?token=fbfc2d868a13484c02a57dedc52ec07492048cc8-77-1741828464-1741796064";
+        
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                video.play();
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSrc;
+            video.addEventListener('loadedmetadata', () => {
+                video.play();
+            });
+        }
+    </script>
 </body>
 </html>
