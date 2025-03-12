@@ -7,175 +7,257 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: Arial, sans-serif;
             background-color: #121212;
             color: white;
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
         }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
         header {
-            width: 100%;
             background-color: #232323;
-            padding: 15px 0;
+            padding: 15px;
             text-align: center;
             margin-bottom: 20px;
         }
+        
         h1 {
             margin: 0;
             color: #f1c40f;
         }
+        
         .ad-container {
-            width: 100%;
-            max-width: 728px;
-            margin: 15px auto;
-            min-height: 90px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin: 20px auto;
+            text-align: center;
+            overflow: hidden;
         }
+        
         .partidos {
-            margin: 20px;
-            width: 80%;
-            max-width: 800px;
-            background-color: #232323;
-            border-radius: 10px;
-            padding: 20px;
-        }
-        .partidos h2 {
-            color: #f1c40f;
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-        .partidos a {
-            display: block;
-            color: white;
-            text-decoration: none;
-            margin: 15px 0;
-            padding: 10px 15px;
-            border-radius: 5px;
-            background-color: #333;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-        .partidos a:hover {
-            background-color: #444;
-            transform: translateX(5px);
-        }
-        video {
-            width: 80%;
-            max-width: 800px;
-            border: 2px solid #444;
-            border-radius: 10px;
-            display: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
             margin: 20px 0;
-            background-color: #000;
         }
-        footer {
+        
+        .partido {
+            background-color: #232323;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+        
+        .partido:hover {
+            background-color: #333;
+        }
+        
+        .partido h3 {
+            margin-top: 0;
+            color: #f1c40f;
+        }
+        
+        .partido .tiempo {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .partido video {
             width: 100%;
+            display: none;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+        
+        footer {
             background-color: #232323;
             text-align: center;
-            padding: 15px 0;
-            margin-top: 20px;
-            font-size: 0.8em;
+            padding: 15px;
+            margin-top: 30px;
             color: #888;
         }
+        
+        .partido.active {
+            border: 2px solid #f1c40f;
+        }
+        
+        .ad-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: rgba(0,0,0,0.9);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 80%;
+            display: none;
+        }
+        
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
     </style>
-    <!-- Script de AdsTerra - Coloca esto en el head -->
-    <script type="text/javascript">
-        atOptions = {
-            'key' : 'TU_KEY_DE_ADSTERRA',
-            'format' : 'iframe',
-            'height' : 90,
-            'width' : 728,
-            'params' : {}
-        };
-    </script>
 </head>
 <body>
-    <header>
-        <h1>Partidos en Vivo</h1>
-    </header>
-    
-    <!-- Anuncio Superior AdsTerra -->
-    <div class="ad-container" id="ad-superior">
-        <script type="text/javascript">
-            document.write('<scr'+'ipt type="text/javascript" src="http'+(location.protocol === 'https:' ? 's' : '')+'://www.highperformancedformats.com/TU_KEY_DE_ADSTERRA/invoke.js"></scr'+'ipt>');
-        </script>
+    <div class="container">
+        <header>
+            <h1>Partidos en Vivo</h1>
+        </header>
+        
+        <!-- Anuncio Superior -->
+        <div class="ad-container">
+            <script type="text/javascript">
+                atOptions = {
+                    'key': 'b330ccd204185aee9ef640adccf896d2',
+                    'format': 'iframe',
+                    'height': 90,
+                    'width': 728,
+                    'params': {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/b330ccd204185aee9ef640adccf896d2/invoke.js"></script>
+        </div>
+        
+        <div class="partidos">
+            <div class="partido" onclick="cargarPartido(this, 'URL_DEL_STREAM_ARSENAL_PSV')">
+                <h3>Arsenal vs PSV</h3>
+                <div class="tiempo">15:00</div>
+                <video controls></video>
+            </div>
+            
+            <div class="partido" onclick="cargarPartido(this, 'URL_DEL_STREAM_ASTON_BRUGGE')">
+                <h3>Aston Villa vs Club Brugge</h3>
+                <div class="tiempo">15:00</div>
+                <video controls></video>
+            </div>
+            
+            <div class="partido" onclick="cargarPartido(this, 'URL_DEL_STREAM_STOKE_BLACKBURN')">
+                <h3>Stoke City vs Blackburn Rovers</h3>
+                <div class="tiempo">15:00</div>
+                <video controls></video>
+            </div>
+            
+            <div class="partido" onclick="cargarPartido(this, 'URL_DEL_STREAM_PLATENSE_QUILMES')">
+                <h3>Platense vs Argentino Quilmes</h3>
+                <div class="tiempo">15:00</div>
+                <video controls></video>
+            </div>
+            
+            <div class="partido" onclick="cargarPartido(this, 'https://yw1hbwfy.fubohd.com/espn/tracks-v1a1/mono.m3u8?token=5c4f74c1c20887d4faf740f2e16f0f287a5ef793-e3-1741841064-1741805064')">
+                <h3>Atlético Madrid vs Real Madrid</h3>
+                <div class="tiempo">15:00</div>
+                <video controls></video>
+            </div>
+            
+            <div class="partido" onclick="cargarPartido(this, 'URL_DEL_STREAM_MADUREIRA_SAMPAIO')">
+                <h3>Madureira vs Sampaio Corrêa RJ</h3>
+                <div class="tiempo">15:45</div>
+                <video controls></video>
+            </div>
+            
+            <div class="partido" onclick="cargarPartido(this, 'URL_DEL_STREAM_AMERICA_PUEBLA')">
+                <h3>América vs Puebla</h3>
+                <div class="tiempo">16:45</div>
+                <video controls></video>
+            </div>
+            
+            <div class="partido" onclick="cargarPartido(this, 'URL_DEL_STREAM_TRINIDAD_PANAMA')">
+                <h3>Trinidad y Tobago vs Panamá</h3>
+                <div class="tiempo">16:50</div>
+                <video controls></video>
+            </div>
+            
+            <div class="partido" onclick="cargarPartido(this, 'URL_DEL_STREAM_VITORIA_NAUTICO')">
+                <h3>Vitória vs Náutico</h3>
+                <div class="tiempo">17:00</div>
+                <video controls></video>
+            </div>
+            
+            <div class="partido" onclick="cargarPartido(this, 'URL_DEL_STREAM_CERRO_MELGAR')">
+                <h3>Cerro Porteño vs Melgar</h3>
+                <div class="tiempo">17:00</div>
+                <video controls></video>
+            </div>
+        </div>
+        
+        <!-- Anuncio Central -->
+        <div class="ad-container">
+            <script async="async" data-cfasync="false" src="//pl26063295.effectiveratecpm.com/2537ae2ea8b16bc9e554273a94dfd098/invoke.js"></script>
+            <div id="container-2537ae2ea8b16bc9e554273a94dfd098"></div>
+        </div>
+        
+        <!-- Anuncio Inferior -->
+        <div class="ad-container">
+            <script type='text/javascript' src='//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js'></script>
+        </div>
+        
+        <footer>
+            &copy; 2025 Partidos en Vivo - Todos los derechos reservados
+        </footer>
     </div>
     
-    <div class="partidos">
-        <h2>Partidos del Día</h2>
-        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_ARSENAL_PSV')">15:00 - Arsenal vs PSV</a>
-        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_ASTON_BRUGGE')">15:00 - Aston Villa vs Club Brugge</a>
-        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_STOKE_BLACKBURN')">15:00 - Stoke City vs Blackburn Rovers</a>
-        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_PLATENSE_QUILMES')">15:00 - Platense vs Argentino Quilmes</a>
-        <a href="#" onclick="cargarPartido('https://yw1hbwfy.fubohd.com/espn/tracks-v1a1/mono.m3u8?token=5c4f74c1c20887d4faf740f2e16f0f287a5ef793-e3-1741841064-1741805064')">15:00 - Atlético Madrid vs Real Madrid</a>
-        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_MADUREIRA_SAMPAIO')">15:45 - Madureira vs Sampaio Corrêa RJ</a>
-        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_AMERICA_PUEBLA')">16:45 - América vs Puebla</a>
-        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_TRINIDAD_PANAMA')">16:50 - Trinidad y Tobago vs Panamá</a>
-        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_VITORIA_NAUTICO')">17:00 - Vitória vs Náutico</a>
-        <a href="#" onclick="cargarPartido('URL_DEL_STREAM_CERRO_MELGAR')">17:00 - Cerro Porteño vs Melgar</a>
+    <!-- Popup para anuncios -->
+    <div class="ad-popup" id="ad-popup">
+        <div class="popup-close" onclick="cerrarPopup()">&times;</div>
+        <iframe id="popup-frame" width="100%" height="250" frameborder="0"></iframe>
     </div>
-    
-    <video id="video" controls></video>
-    
-    <!-- Anuncio Lateral/Flotante AdsTerra - Un formato adicional -->
-    <div class="ad-container">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'TU_SEGUNDA_KEY_DE_ADSTERRA',
-                'format' : 'iframe',
-                'height' : 600,
-                'width' : 160,
-                'params' : {}
-            };
-            document.write('<scr'+'ipt type="text/javascript" src="http'+(location.protocol === 'https:' ? 's' : '')+'://www.highperformancedformats.com/TU_SEGUNDA_KEY_DE_ADSTERRA/invoke.js"></scr'+'ipt>');
-        </script>
-    </div>
-    
-    <!-- Anuncio Inferior AdsTerra -->
-    <div class="ad-container" id="ad-inferior">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : 'TU_TERCERA_KEY_DE_ADSTERRA',
-                'format' : 'iframe',
-                'height' : 90,
-                'width' : 728,
-                'params' : {}
-            };
-            document.write('<scr'+'ipt type="text/javascript" src="http'+(location.protocol === 'https:' ? 's' : '')+'://www.highperformancedformats.com/TU_TERCERA_KEY_DE_ADSTERRA/invoke.js"></scr'+'ipt>');
-        </script>
-    </div>
-    
-    <footer>
-        &copy; 2025 Partidos en Vivo - Todos los derechos reservados
-    </footer>
     
     <script>
-        function cargarPartido(url) {
-            const video = document.getElementById('video');
-            
-            // Limpiar cualquier instancia previa de HLS
-            if (window.hls) {
-                window.hls.destroy();
+        // Variable para mantener la instancia actual de HLS
+        let currentHls = null;
+        let lastActivePartido = null;
+        
+        function cargarPartido(elemento, url) {
+            // Restablecer estilo del partido anterior
+            if (lastActivePartido) {
+                lastActivePartido.classList.remove('active');
+                const lastVideo = lastActivePartido.querySelector('video');
+                lastVideo.pause();
+                lastVideo.style.display = 'none';
+                
+                // Destruir la instancia anterior de HLS
+                if (currentHls) {
+                    currentHls.destroy();
+                    currentHls = null;
+                }
             }
             
+            // Activar el partido actual
+            elemento.classList.add('active');
+            lastActivePartido = elemento;
+            
+            // Obtener el elemento de video dentro del partido
+            const video = elemento.querySelector('video');
+            
+            // Mostrar un anuncio popup aleatorio
+            mostrarPopupAleatorio();
+            
+            // Reproducir el video
             if (Hls.isSupported()) {
-                window.hls = new Hls();
-                window.hls.loadSource(url);
-                window.hls.attachMedia(video);
-                window.hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                currentHls = new Hls();
+                currentHls.loadSource(url);
+                currentHls.attachMedia(video);
+                currentHls.on(Hls.Events.MANIFEST_PARSED, () => {
                     video.style.display = 'block';
                     video.play().catch(e => {
                         console.log('Error al iniciar reproducción automática:', e);
-                        // Mostrar algún mensaje al usuario para que haga clic manualmente
                     });
                 });
                 
-                window.hls.on(Hls.Events.ERROR, function(event, data) {
+                currentHls.on(Hls.Events.ERROR, function(event, data) {
                     if (data.fatal) {
                         console.error('Error fatal de HLS:', data);
                         alert('Error al cargar el stream. Por favor, intenta con otro partido.');
@@ -191,21 +273,60 @@
                 alert('Tu navegador no soporta la reproducción de estos videos');
             }
             
-            // Desplazarse hasta el video
-            video.scrollIntoView({ behavior: 'smooth' });
+            // Desplazarse hasta el partido seleccionado
+            elemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Cargar anuncio popunder
+            cargarPopunder();
         }
         
-        // Función para cargar anuncios popup/popunder (opcional)
-        function cargarPopup() {
-            const popupScript = document.createElement('script');
-            popupScript.src = 'https://www.highperformancedformats.com/TU_KEY_POPUNDER/invoke.js';
-            document.body.appendChild(popupScript);
+        function mostrarPopupAleatorio() {
+            const popup = document.getElementById('ad-popup');
+            const frame = document.getElementById('popup-frame');
+            
+            // Lista de anuncios disponibles
+            const anuncios = [
+                '//pl26063307.effectiveratecpm.com/19/09/91/1909913ee893cee324321a2b56c090fa.js',
+                'https://www.effectiveratecpm.com/wy4ysndt?key=12c98d265ef2e657283053a557f43edd'
+            ];
+            
+            // Seleccionar anuncio aleatorio
+            const anuncioAleatorio = anuncios[Math.floor(Math.random() * anuncios.length)];
+            
+            // Mostrar popup después de un breve retraso
+            setTimeout(() => {
+                frame.src = anuncioAleatorio;
+                popup.style.display = 'block';
+                
+                // Cerrar automáticamente después de 10 segundos
+                setTimeout(cerrarPopup, 10000);
+            }, 1000);
         }
         
-        // Cargar popup al hacer clic en un partido (opcional)
-        document.querySelectorAll('.partidos a').forEach(link => {
-            link.addEventListener('click', function() {
-                cargarPopup();
+        function cerrarPopup() {
+            document.getElementById('ad-popup').style.display = 'none';
+        }
+        
+        function cargarPopunder() {
+            // Cargar script de popunder
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = '//pl26063307.effectiveratecpm.com/19/09/91/1909913ee893cee324321a2b56c090fa.js';
+            document.body.appendChild(script);
+        }
+        
+        // Inicializar anuncios al cargar la página
+        window.addEventListener('load', function() {
+            // Pre-cargar scripts de anuncios
+            const scripts = [
+                '//pl26063313.effectiveratecpm.com/93/61/3d/93613d042ce505fe468e829efbb21520.js'
+            ];
+            
+            scripts.forEach(src => {
+                const script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = src;
+                document.body.appendChild(script);
             });
         });
     </script>
