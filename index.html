@@ -10,37 +10,101 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: black;
+            background-color: #121212;
             color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
-        .ads {
-            width: 728px;
-            height: 90px;
-            margin: 10px 0;
-            background: gray;
+        header {
+            width: 100%;
+            background-color: #232323;
+            padding: 15px 0;
             text-align: center;
-            line-height: 90px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin: 0;
+            color: #f1c40f;
+        }
+        .ad-container {
+            width: 100%;
+            max-width: 728px;
+            margin: 15px auto;
+            min-height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .partidos {
             margin: 20px;
+            width: 80%;
+            max-width: 800px;
+            background-color: #232323;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .partidos h2 {
+            color: #f1c40f;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+            margin-top: 0;
         }
         .partidos a {
             display: block;
             color: white;
             text-decoration: none;
-            margin: 5px 0;
+            margin: 15px 0;
+            padding: 10px 15px;
+            border-radius: 5px;
+            background-color: #333;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .partidos a:hover {
+            background-color: #444;
+            transform: translateX(5px);
         }
         video {
             width: 80%;
             max-width: 800px;
-            border: 2px solid white;
+            border: 2px solid #444;
             border-radius: 10px;
             display: none;
+            margin: 20px 0;
+            background-color: #000;
+        }
+        footer {
+            width: 100%;
+            background-color: #232323;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 20px;
+            font-size: 0.8em;
+            color: #888;
         }
     </style>
+    <!-- Script de AdsTerra - Coloca esto en el head -->
+    <script type="text/javascript">
+        atOptions = {
+            'key' : 'TU_KEY_DE_ADSTERRA',
+            'format' : 'iframe',
+            'height' : 90,
+            'width' : 728,
+            'params' : {}
+        };
+    </script>
 </head>
 <body>
-    <div class="ads">Publicidad Superior</div>
+    <header>
+        <h1>Partidos en Vivo</h1>
+    </header>
+    
+    <!-- Anuncio Superior AdsTerra -->
+    <div class="ad-container" id="ad-superior">
+        <script type="text/javascript">
+            document.write('<scr'+'ipt type="text/javascript" src="http'+(location.protocol === 'https:' ? 's' : '')+'://www.highperformancedformats.com/TU_KEY_DE_ADSTERRA/invoke.js"></scr'+'ipt>');
+        </script>
+    </div>
     
     <div class="partidos">
         <h2>Partidos del Día</h2>
@@ -58,27 +122,92 @@
     
     <video id="video" controls></video>
     
-    <div class="ads">Publicidad Inferior</div>
+    <!-- Anuncio Lateral/Flotante AdsTerra - Un formato adicional -->
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : 'TU_SEGUNDA_KEY_DE_ADSTERRA',
+                'format' : 'iframe',
+                'height' : 600,
+                'width' : 160,
+                'params' : {}
+            };
+            document.write('<scr'+'ipt type="text/javascript" src="http'+(location.protocol === 'https:' ? 's' : '')+'://www.highperformancedformats.com/TU_SEGUNDA_KEY_DE_ADSTERRA/invoke.js"></scr'+'ipt>');
+        </script>
+    </div>
+    
+    <!-- Anuncio Inferior AdsTerra -->
+    <div class="ad-container" id="ad-inferior">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : 'TU_TERCERA_KEY_DE_ADSTERRA',
+                'format' : 'iframe',
+                'height' : 90,
+                'width' : 728,
+                'params' : {}
+            };
+            document.write('<scr'+'ipt type="text/javascript" src="http'+(location.protocol === 'https:' ? 's' : '')+'://www.highperformancedformats.com/TU_TERCERA_KEY_DE_ADSTERRA/invoke.js"></scr'+'ipt>');
+        </script>
+    </div>
+    
+    <footer>
+        &copy; 2025 Partidos en Vivo - Todos los derechos reservados
+    </footer>
     
     <script>
         function cargarPartido(url) {
             const video = document.getElementById('video');
+            
+            // Limpiar cualquier instancia previa de HLS
+            if (window.hls) {
+                window.hls.destroy();
+            }
+            
             if (Hls.isSupported()) {
-                const hls = new Hls();
-                hls.loadSource(url);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                window.hls = new Hls();
+                window.hls.loadSource(url);
+                window.hls.attachMedia(video);
+                window.hls.on(Hls.Events.MANIFEST_PARSED, () => {
                     video.style.display = 'block';
-                    video.play();
+                    video.play().catch(e => {
+                        console.log('Error al iniciar reproducción automática:', e);
+                        // Mostrar algún mensaje al usuario para que haga clic manualmente
+                    });
+                });
+                
+                window.hls.on(Hls.Events.ERROR, function(event, data) {
+                    if (data.fatal) {
+                        console.error('Error fatal de HLS:', data);
+                        alert('Error al cargar el stream. Por favor, intenta con otro partido.');
+                    }
                 });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = url;
                 video.style.display = 'block';
                 video.addEventListener('loadedmetadata', () => {
-                    video.play();
+                    video.play().catch(e => console.log('Error al reproducir en Safari:', e));
                 });
+            } else {
+                alert('Tu navegador no soporta la reproducción de estos videos');
             }
+            
+            // Desplazarse hasta el video
+            video.scrollIntoView({ behavior: 'smooth' });
         }
+        
+        // Función para cargar anuncios popup/popunder (opcional)
+        function cargarPopup() {
+            const popupScript = document.createElement('script');
+            popupScript.src = 'https://www.highperformancedformats.com/TU_KEY_POPUNDER/invoke.js';
+            document.body.appendChild(popupScript);
+        }
+        
+        // Cargar popup al hacer clic en un partido (opcional)
+        document.querySelectorAll('.partidos a').forEach(link => {
+            link.addEventListener('click', function() {
+                cargarPopup();
+            });
+        });
     </script>
 </body>
 </html>
